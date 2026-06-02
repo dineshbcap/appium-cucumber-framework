@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+  Single-device sequential run — use: mvn test -Psingle
+  RetryAnnotationTransformer retries flaky scenarios based on test.retry.count in config.
+-->
+<suite name="Appium Single Run Suite" verbose="1">
+
+    <listeners>
+        <listener class-name="com.appium.tests.runners.RetryAnnotationTransformer"/>
+    </listeners>
+
+    <test name="Smoke Tests">
+        <classes>
+            <class name="com.appium.tests.runners.SingleRunner"/>
+        </classes>
+    </test>
+
+</suite>

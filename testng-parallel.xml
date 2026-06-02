@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+  Parallel execution: each Cucumber scenario runs on its own thread.
+  data-provider-thread-count controls the number of concurrent threads.
+  Increase/decrease based on the number of available emulators/devices.
+
+  RetryAnnotationTransformer automatically applies RetryAnalyzer to all @Test
+  methods — retrying flaky scenarios up to test.retry.count times (see config.properties).
+-->
+<suite name="Appium Parallel Test Suite"
+       verbose="1"
+       data-provider-thread-count="4">
+
+    <!-- Automatically apply RetryAnalyzer to every generated Cucumber @Test -->
+    <listeners>
+        <listener class-name="com.appium.tests.runners.RetryAnnotationTransformer"/>
+    </listeners>
+
+    <test name="All Controls - Parallel">
+        <classes>
+            <class name="com.appium.tests.runners.ParallelRunner"/>
+        </classes>
+    </test>
+
+</suite>
