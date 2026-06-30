@@ -1,6 +1,7 @@
 package com.appium.tests.hooks;
 
 import com.appium.framework.config.ConfigReader;
+import com.appium.framework.driver.CloudDriverFactory;
 import com.appium.framework.driver.DriverFactory;
 import com.appium.framework.driver.DriverManager;
 import com.appium.framework.utils.RecordingUtils;
@@ -53,8 +54,14 @@ public class Hooks {
         log.info("Tags: {}", scenario.getSourceTagNames());
         log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-        // Create a new Appium driver session for this scenario
-        DriverFactory.createDriver();
+        // Cloud scenarios use CloudDriverFactory; all others use the local DriverFactory.
+        // The @cloud tag triggers connection to BrowserStack/Sauce Labs instead of localhost.
+        if (scenario.getSourceTagNames().contains("@cloud")) {
+            log.info("@cloud scenario detected — creating cloud driver");
+            CloudDriverFactory.createCloudDriver();
+        } else {
+            DriverFactory.createDriver();
+        }
 
         // Start screen recording if enabled in config
         if (ConfigReader.getBoolean("recording.enabled", false)) {

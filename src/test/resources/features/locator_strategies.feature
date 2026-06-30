@@ -104,3 +104,30 @@ Feature: Appium Locator Strategies
     # @AndroidFindBy and @iOSXCUITFindBy on same field — resolved at runtime
     When the user clicks the text nav item via PageFactory
     Then the app should navigate successfully
+
+  # ── Selenium 4 Relative Locators (Appium 2.x support) ────────────────────────
+  # RelativeLocator.with() finds elements based on their visual position
+  # relative to a known anchor element on screen. Supported by Appium 2.x
+  # via the W3C WebDriver protocol's "relative locator" endpoint.
+
+  @relativeLocator @advanced
+  Scenario: Find element below an anchor using RelativeLocator
+    # RelativeLocator.with(By.className(...)).below(anchor)
+    # Finds the first matching element whose top edge is below the anchor's bottom edge.
+    # Use case: find a value/label that always appears directly below a known header.
+    When the user finds element below the anchor with text "Text"
+    Then the element should be found and visible
+
+  @relativeLocator @advanced
+  Scenario: Find element near an anchor using RelativeLocator with distance
+    # RelativeLocator.with(By.className(...)).near(anchor, maxDistancePixels)
+    # Useful for finding unlabeled elements (icons, buttons) adjacent to a known label.
+    When the user finds element near the anchor with text "Text" within 200 pixels
+    Then the element should be found and visible
+
+  @relativeLocator @advanced
+  Scenario: Chain multiple relative conditions on a single locator
+    # RelativeLocator supports chaining: .below(topAnchor).above(bottomAnchor)
+    # Finds an element positioned between two known anchors — useful for dense lists.
+    When the user finds element between anchors "Text" and "Views"
+    Then the element should be found and visible

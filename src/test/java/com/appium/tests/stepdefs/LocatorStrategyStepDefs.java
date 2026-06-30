@@ -13,6 +13,8 @@ import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
+// RelativeLocator step definitions are at the bottom of this class
+
 /**
  * Step definitions for Appium Locator Strategies feature.
  *
@@ -137,5 +139,44 @@ public class LocatorStrategyStepDefs {
         Assertions.assertThat(DriverManager.getDriver().getPageSource())
                 .as("App page source should not be empty after navigation")
                 .isNotEmpty();
+    }
+
+    // ── Relative Locator step definitions (Selenium 4 / Appium 2.x) ──────────
+    // RelativeLocator.with() finds elements by their visual position relative
+    // to a known anchor element. Appium 2.x supports this via W3C protocol.
+
+    @When("the user finds element below the anchor with text {string}")
+    public void findElementBelowAnchor(String anchorText) {
+        log.info("[Strategy: RelativeLocator.below] anchor text='{}'", anchorText);
+        // Find the first TextView/element below the anchor text label
+        By anchorLocator = By.xpath(
+                String.format("//*[@text='%s' or @label='%s']", anchorText, anchorText));
+        By targetBy = By.className(
+                ConfigReader.isAndroid() ? "android.widget.TextView" : "XCUIElementTypeStaticText");
+        lastFoundElement = page.findBelow(anchorLocator, targetBy);
+    }
+
+    @When("the user finds element near the anchor with text {string} within {int} pixels")
+    public void findElementNearAnchor(String anchorText, int maxDistancePx) {
+        log.info("[Strategy: RelativeLocator.near] anchor='{}', maxDist={}px",
+                anchorText, maxDistancePx);
+        By anchorLocator = By.xpath(
+                String.format("//*[@text='%s' or @label='%s']", anchorText, anchorText));
+        By targetBy = By.className(
+                ConfigReader.isAndroid() ? "android.widget.TextView" : "XCUIElementTypeStaticText");
+        lastFoundElement = page.findNear(anchorLocator, targetBy, maxDistancePx);
+    }
+
+    @When("the user finds element between anchors {string} and {string}")
+    public void findElementBetweenAnchors(String topAnchorText, String bottomAnchorText) {
+        log.info("[Strategy: RelativeLocator.chained] between '{}' and '{}'",
+                topAnchorText, bottomAnchorText);
+        By topAnchor = By.xpath(
+                String.format("//*[@text='%s' or @label='%s']", topAnchorText, topAnchorText));
+        By bottomAnchor = By.xpath(
+                String.format("//*[@text='%s' or @label='%s']", bottomAnchorText, bottomAnchorText));
+        By targetBy = By.className(
+                ConfigReader.isAndroid() ? "android.widget.TextView" : "XCUIElementTypeStaticText");
+        lastFoundElement = page.findBetween(topAnchor, bottomAnchor, targetBy);
     }
 }

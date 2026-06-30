@@ -71,4 +71,53 @@ public class GestureStepDefs {
                 .as("Gesture result")
                 .contains(expected);
     }
+
+    // ── mobile: gesture command step definitions ───────────────────────────────
+    // These demonstrate Appium 2.x mobile: commands via executeScript(),
+    // which delegate gesture execution to UiAutomator2 (Android) or XCUITest (iOS).
+
+    @When("the user scrolls down using mobile command")
+    public void userScrollsDownUsingMobileCommand() {
+        page.performMobileScrollDown();
+    }
+
+    @When("the user scrolls up using mobile command")
+    public void userScrollsUpUsingMobileCommand() {
+        page.performMobileScrollUp();
+    }
+
+    @When("the user swipes left using mobile command")
+    public void userSwipesLeftUsingMobileCommand() {
+        page.performMobileSwipeLeft();
+    }
+
+    @When("the user swipes right using mobile command")
+    public void userSwipesRightUsingMobileCommand() {
+        page.performMobileSwipeRight();
+    }
+
+    @When("the user double taps using mobile command")
+    public void userDoubleTapsUsingMobileCommand() {
+        page.performMobileDoubleTap();
+    }
+
+    @When("the user long presses using mobile command for {int} milliseconds")
+    public void userLongPressesUsingMobileCommand(int durationMs) {
+        page.performMobileLongPress(durationMs);
+    }
+
+    @When("the user flings down using mobile command")
+    public void userFlingsDownUsingMobileCommand() {
+        page.performMobileFling("down");
+    }
+
+    @When("the user pinches open using mobile command")
+    public void userPinchesOpenUsingMobileCommand() {
+        page.performMobilePinchOpen();
+    }
+
+    @When("the user pinches close using mobile command")
+    public void userPinchesCloseUsingMobileCommand() {
+        page.performMobilePinchClose();
+    }
 }

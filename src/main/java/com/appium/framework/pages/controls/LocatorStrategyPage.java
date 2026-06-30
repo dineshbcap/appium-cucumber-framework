@@ -8,6 +8,7 @@ import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.locators.RelativeLocator;
 
 import java.util.List;
 
@@ -317,5 +318,128 @@ public class LocatorStrategyPage extends BasePage {
      */
     public String getIosFrame(WebElement element) {
         return getAttribute(element, "frame");
+    }
+
+    // ── 10. Relative Locators (Selenium 4 / Appium 2.x) ──────────────────────
+
+    /**
+     * Finds an element <b>above</b> the anchor element using Selenium 4's
+     * {@link RelativeLocator}.
+     *
+     * <p><b>Concept: Relative Locators</b><br>
+     * Selenium 4 introduced relative locators (also called Friendly Locators) that find
+     * elements based on their visual position relative to another element on screen.
+     * Appium 2.x supports these via the W3C WebDriver protocol.</p>
+     *
+     * <p><b>How it works:</b> The WebDriver server evaluates the positions of all matching
+     * elements and returns those that are spatially above/below/left/right of the anchor.
+     * "Above" means the bottom edge of the candidate is above the top edge of the anchor.</p>
+     *
+     * <p><b>Available relative directions:</b>
+     * <ul>
+     *   <li>{@code above(anchor)} — element whose bottom is above anchor's top</li>
+     *   <li>{@code below(anchor)} — element whose top is below anchor's bottom</li>
+     *   <li>{@code toLeftOf(anchor)} — element whose right edge is left of anchor's left</li>
+     *   <li>{@code toRightOf(anchor)} — element whose left edge is right of anchor's right</li>
+     *   <li>{@code near(anchor)} — element within 50px of the anchor (default proximity)</li>
+     *   <li>{@code near(anchor, atMostDistanceInPixels)} — element within custom distance</li>
+     * </ul>
+     * </p>
+     *
+     * <p><b>Usage note:</b> Relative locators work best for stable UI layouts.
+     * On mobile, they are most useful for finding unlabeled elements (e.g., icons)
+     * that appear in a fixed position relative to a labeled anchor element.</p>
+     *
+     * @param anchorLocator locator for the reference element (the anchor)
+     * @param targetBy      the {@link By} type of element to find above the anchor
+     *                      (e.g., {@code By.className("android.widget.TextView")})
+     * @return the first matching element above the anchor
+     */
+    public WebElement findAbove(By anchorLocator, By targetBy) {
+        log.info("[Strategy: RelativeLocator.above] anchor={}, target={}", anchorLocator, targetBy);
+        WebElement anchor = DriverManager.getDriver().findElement(anchorLocator);
+        return DriverManager.getDriver().findElement(
+                RelativeLocator.with(targetBy).above(anchor));
+    }
+
+    /**
+     * Finds an element <b>below</b> the anchor element.
+     *
+     * @param anchorLocator locator for the reference anchor element
+     * @param targetBy      the element type to find below the anchor
+     * @return the first matching element below the anchor
+     */
+    public WebElement findBelow(By anchorLocator, By targetBy) {
+        log.info("[Strategy: RelativeLocator.below] anchor={}, target={}", anchorLocator, targetBy);
+        WebElement anchor = DriverManager.getDriver().findElement(anchorLocator);
+        return DriverManager.getDriver().findElement(
+                RelativeLocator.with(targetBy).below(anchor));
+    }
+
+    /**
+     * Finds an element to the <b>left</b> of the anchor element.
+     *
+     * @param anchorLocator locator for the reference anchor element
+     * @param targetBy      the element type to find left of the anchor
+     * @return the first matching element left of the anchor
+     */
+    public WebElement findToLeftOf(By anchorLocator, By targetBy) {
+        log.info("[Strategy: RelativeLocator.toLeftOf] anchor={}, target={}", anchorLocator, targetBy);
+        WebElement anchor = DriverManager.getDriver().findElement(anchorLocator);
+        return DriverManager.getDriver().findElement(
+                RelativeLocator.with(targetBy).toLeftOf(anchor));
+    }
+
+    /**
+     * Finds an element to the <b>right</b> of the anchor element.
+     *
+     * @param anchorLocator locator for the reference anchor element
+     * @param targetBy      the element type to find right of the anchor
+     * @return the first matching element right of the anchor
+     */
+    public WebElement findToRightOf(By anchorLocator, By targetBy) {
+        log.info("[Strategy: RelativeLocator.toRightOf] anchor={}, target={}", anchorLocator, targetBy);
+        WebElement anchor = DriverManager.getDriver().findElement(anchorLocator);
+        return DriverManager.getDriver().findElement(
+                RelativeLocator.with(targetBy).toRightOf(anchor));
+    }
+
+    /**
+     * Finds an element <b>near</b> the anchor element within a given pixel distance.
+     *
+     * <p>"Near" uses the center-to-center distance between the anchor and candidate
+     * elements. The default proximity in Selenium's implementation is 50 pixels.</p>
+     *
+     * @param anchorLocator      locator for the reference anchor element
+     * @param targetBy           the element type to find near the anchor
+     * @param maxDistancePixels  maximum pixel distance between element centers
+     * @return the first matching element within the given proximity
+     */
+    public WebElement findNear(By anchorLocator, By targetBy, int maxDistancePixels) {
+        log.info("[Strategy: RelativeLocator.near] anchor={}, target={}, maxDist={}px",
+                anchorLocator, targetBy, maxDistancePixels);
+        WebElement anchor = DriverManager.getDriver().findElement(anchorLocator);
+        return DriverManager.getDriver().findElement(
+                RelativeLocator.with(targetBy).near(anchor, maxDistancePixels));
+    }
+
+    /**
+     * Chains multiple relative conditions — finds an element <b>below</b> one anchor
+     * and <b>above</b> another anchor simultaneously.
+     *
+     * <p>Chaining is useful when a single direction isn't unique enough —
+     * e.g., find the element that is below a header AND above a footer.</p>
+     *
+     * @param upperAnchorLocator locator for the element the target must be below
+     * @param lowerAnchorLocator locator for the element the target must be above
+     * @param targetBy           the element type to find
+     * @return element positioned between the two anchors
+     */
+    public WebElement findBetween(By upperAnchorLocator, By lowerAnchorLocator, By targetBy) {
+        log.info("[Strategy: RelativeLocator.chained] between two anchors, target={}", targetBy);
+        WebElement upperAnchor = DriverManager.getDriver().findElement(upperAnchorLocator);
+        WebElement lowerAnchor = DriverManager.getDriver().findElement(lowerAnchorLocator);
+        return DriverManager.getDriver().findElement(
+                RelativeLocator.with(targetBy).below(upperAnchor).above(lowerAnchor));
     }
 }
