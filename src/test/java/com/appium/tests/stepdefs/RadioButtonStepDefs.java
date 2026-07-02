@@ -13,7 +13,6 @@ public class RadioButtonStepDefs {
         switch (number) {
             case 1 -> page.selectRadio1();
             case 2 -> page.selectRadio2();
-            case 3 -> page.selectRadio3();
             default -> throw new IllegalArgumentException("Unknown radio button: " + number);
         }
     }
@@ -28,7 +27,6 @@ public class RadioButtonStepDefs {
         boolean selected = switch (number) {
             case 1 -> page.isRadio1Selected();
             case 2 -> page.isRadio2Selected();
-            case 3 -> page.isRadio3Selected();
             default -> throw new IllegalArgumentException("Unknown radio button: " + number);
         };
         Assertions.assertThat(selected).as("Radio button " + number + " selected").isTrue();
@@ -39,7 +37,6 @@ public class RadioButtonStepDefs {
         boolean selected = switch (number) {
             case 1 -> page.isRadio1Selected();
             case 2 -> page.isRadio2Selected();
-            case 3 -> page.isRadio3Selected();
             default -> throw new IllegalArgumentException("Unknown radio button: " + number);
         };
         Assertions.assertThat(selected).as("Radio button " + number + " should not be selected").isFalse();

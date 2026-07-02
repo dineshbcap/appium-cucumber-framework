@@ -14,6 +14,11 @@ public class DropdownStepDefs {
         else page.openDropdown2();
     }
 
+    @When("the user closes the dropdown")
+    public void userClosesDropdown() {
+        page.closeDropdown();
+    }
+
     @When("the user selects {string} from dropdown {int}")
     public void userSelectsFromDropdown(String option, int number) {
         if (number == 1) page.selectDropdown1ByText(option);
@@ -33,12 +38,5 @@ public class DropdownStepDefs {
         Assertions.assertThat(actual)
                 .as("Dropdown " + number + " selection")
                 .isEqualTo(expected);
-    }
-
-    @Then("the dropdown result should contain {string}")
-    public void dropdownResultShouldContain(String expected) {
-        Assertions.assertThat(page.getResultText())
-                .as("Dropdown result")
-                .contains(expected);
     }
 }

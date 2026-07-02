@@ -6,17 +6,17 @@ Feature: Deep Linking
 
   # ── Android Deep Links ─────────────────────────────────────────────────────────
 
-  @smoke @androidOnly @deepLink
+  @smoke @androidOnly @deepLink @debug1
   Scenario: Open Android app via URL scheme deep link
     # Simulates clicking a link in a browser or notification that opens the app
     When the user opens the Android deep link "content://media/external/images/media"
-    Then the app should be running in the foreground
+    Then the app should be running in the foreground deeplink
 
   @androidOnly @deepLink @intent
   Scenario: Navigate to app settings via intent deep link
     # Demonstrates using intent URIs to navigate to specific Android system screens
     When the user opens the Android deep link "android-app://io.appium.android.apis/.ApiDemos"
-    Then the app should be running in the foreground
+    Then the app should be running in the foreground deeplink
 
   # ── iOS Deep Links ─────────────────────────────────────────────────────────────
 
@@ -24,15 +24,15 @@ Feature: Deep Linking
   Scenario: Open iOS app via URL scheme
     # URL scheme must be registered in the app's Info.plist
     When the user opens the iOS URL "uikit://main"
-    Then the app should be running in the foreground
+    Then the app should be running in the foreground deeplink
 
   # ── Cross-Platform Deep Links ──────────────────────────────────────────────────
 
   @smoke @crossPlatform @deepLink
   Scenario: Verify app state after deep link navigation
     When the user opens a deep link to the app
-    Then the app should be running in the foreground
-    And the main screen should be displayed
+    Then the app should be running in the foreground deeplink
+    And the main screen should be displayed deeplink
 
   # ── Deep Link Benefits Demo ────────────────────────────────────────────────────
 
@@ -41,4 +41,4 @@ Feature: Deep Linking
     # In real apps with URL schemes: myapp://profile/settings
     # This dramatically reduces test setup time vs tapping through 5 screens
     When the user opens a deep link to the app
-    Then the app should be running in the foreground
+    Then the app should be running in the foreground deeplink

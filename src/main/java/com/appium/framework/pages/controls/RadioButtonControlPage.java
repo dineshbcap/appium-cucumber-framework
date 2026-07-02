@@ -7,27 +7,24 @@ import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
+/**
+ * Page object for ApiDemos' real "Views &gt; Controls &gt; 1. Light Theme" screen,
+ * which has a two-button {@code RadioGroup} ({@code radio1}, {@code radio2}) and
+ * no separate result label — selection state is read directly from each button.
+ */
 public class RadioButtonControlPage extends BasePage {
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/radio_button_1")
+    @AndroidFindBy(id = "io.appium.android.apis:id/radio1")
     @iOSXCUITFindBy(accessibility = "radioButton1")
     private WebElement radio1;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/radio_button_2")
+    @AndroidFindBy(id = "io.appium.android.apis:id/radio2")
     @iOSXCUITFindBy(accessibility = "radioButton2")
     private WebElement radio2;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/radio_button_3")
-    @iOSXCUITFindBy(accessibility = "radioButton3")
-    private WebElement radio3;
 
     @AndroidFindBy(className = "android.widget.RadioButton")
     @iOSXCUITFindBy(className = "XCUIElementTypeRadioButton")
     private List<WebElement> allRadioButtons;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/radio_result")
-    @iOSXCUITFindBy(accessibility = "radioResult")
-    private WebElement resultLabel;
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -41,21 +38,12 @@ public class RadioButtonControlPage extends BasePage {
         radio2.click();
     }
 
-    public void selectRadio3() {
-        log.info("Selecting radio button 3");
-        radio3.click();
-    }
-
     public boolean isRadio1Selected() {
         return isChecked(radio1);
     }
 
     public boolean isRadio2Selected() {
         return isChecked(radio2);
-    }
-
-    public boolean isRadio3Selected() {
-        return isChecked(radio3);
     }
 
     public void selectRadioByIndex(int index) {
@@ -75,10 +63,6 @@ public class RadioButtonControlPage extends BasePage {
 
     public int getRadioButtonCount() {
         return allRadioButtons.size();
-    }
-
-    public String getResultText() {
-        return resultLabel.getText();
     }
 
     private boolean isChecked(WebElement element) {

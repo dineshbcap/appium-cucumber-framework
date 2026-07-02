@@ -38,7 +38,7 @@ import io.cucumber.testng.CucumberOptions;
                 "html:target/cucumber-reports/single-run.html",
                 "json:target/cucumber-reports/single-run.json"
         },
-        tags       = "@smoke",
+        tags       = "@debug",
         monochrome = true
 )
 public class SingleRunner extends AbstractTestNGCucumberTests {

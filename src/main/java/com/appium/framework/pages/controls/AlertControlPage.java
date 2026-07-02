@@ -1,55 +1,50 @@
 package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
+import com.appium.framework.utils.WaitUtils;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+/**
+ * Page object for ApiDemos' real "App &gt; Alert Dialogs" screen. Two real
+ * dialogs are used here: {@code two_buttons} ("OK Cancel dialog with a
+ * message" — its message occupies the standard {@code alertTitle} slot since
+ * it has no separate title) and {@code text_entry_button} ("Text Entry
+ * dialog", with real {@code username_edit}/{@code password_edit} fields).
+ * This screen has no result label — dialogs are simply dismissed.
+ */
 public class AlertControlPage extends BasePage {
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/alert_button")
+    @AndroidFindBy(id = "io.appium.android.apis:id/two_buttons")
     @iOSXCUITFindBy(accessibility = "showAlertButton")
-    private WebElement showAlertButton;
+    private WebElement twoButtonsAlertButton;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/confirm_button")
-    @iOSXCUITFindBy(accessibility = "showConfirmButton")
-    private WebElement showConfirmButton;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/prompt_button")
+    @AndroidFindBy(id = "io.appium.android.apis:id/text_entry_button")
     @iOSXCUITFindBy(accessibility = "showPromptButton")
-    private WebElement showPromptButton;
+    private WebElement textEntryButton;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/alert_result")
-    @iOSXCUITFindBy(accessibility = "alertResult")
-    private WebElement resultLabel;
-
-    private static final By ALERT_OK_BUTTON =
-            By.xpath("//*[@text='OK' or @text='Ok' or @name='OK']");
-    private static final By ALERT_CANCEL_BUTTON =
-            By.xpath("//*[@text='Cancel' or @name='Cancel']");
-    private static final By ALERT_MESSAGE =
-            By.id("android:id/message");
-    private static final By ALERT_TITLE =
-            By.id("android:id/alertTitle");
-    private static final By PROMPT_INPUT =
-            By.id("android:id/input");
+    private static final By ALERT_OK_BUTTON = By.id("android:id/button1");
+    private static final By ALERT_CANCEL_BUTTON = By.id("android:id/button2");
+    private static final By ALERT_TITLE = By.id("android:id/alertTitle");
+    private static final By PROMPT_INPUT = By.id("io.appium.android.apis:id/username_edit");
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
     public void triggerSimpleAlert() {
         log.info("Triggering simple alert dialog");
-        showAlertButton.click();
+        twoButtonsAlertButton.click();
     }
 
     public void triggerConfirmDialog() {
         log.info("Triggering confirm dialog");
-        showConfirmButton.click();
+        twoButtonsAlertButton.click();
     }
 
     public void triggerPromptDialog() {
         log.info("Triggering prompt dialog");
-        showPromptButton.click();
+        textEntryButton.click();
     }
 
     public void acceptAlert() {
@@ -72,14 +67,19 @@ public class AlertControlPage extends BasePage {
     }
 
     public String getAlertMessage() {
-        return getText(ALERT_MESSAGE);
+        // This dialog style has no separate message element — its message
+        // occupies the alertTitle slot.
+        return getText(ALERT_TITLE);
     }
 
     public boolean isAlertDisplayed() {
-        return isDisplayed(ALERT_OK_BUTTON);
-    }
-
-    public String getResultText() {
-        return resultLabel.getText();
+        // isDisplayed() checks instantly and races the dialog's open animation
+        // right after a trigger click; wait briefly before concluding it's absent.
+        try {
+            WaitUtils.waitForVisible(ALERT_OK_BUTTON, 5);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

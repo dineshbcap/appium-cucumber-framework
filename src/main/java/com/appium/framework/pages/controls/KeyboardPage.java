@@ -2,11 +2,9 @@ package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.KeyboardUtils;
-import com.appium.framework.utils.WaitUtils;
 import io.appium.java_client.android.nativekey.AndroidKey;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -39,24 +37,6 @@ public class KeyboardPage extends BasePage {
     @AndroidFindBy(id = "io.appium.android.apis:id/edit")
     @iOSXCUITFindBy(accessibility = "textField")
     private WebElement textField;
-
-    /** A search field that uses the "Search" keyboard action button. */
-    @AndroidFindBy(accessibility = "Search input")
-    @iOSXCUITFindBy(accessibility = "searchField")
-    private WebElement searchField;
-
-    /** Submit / Done button on the screen (not the keyboard button). */
-    @AndroidFindBy(id = "io.appium.android.apis:id/submit_button")
-    @iOSXCUITFindBy(accessibility = "submitButton")
-    private WebElement submitButton;
-
-    /** Label that shows the result after submitting text input. */
-    @AndroidFindBy(id = "io.appium.android.apis:id/text_result")
-    @iOSXCUITFindBy(accessibility = "textResult")
-    private WebElement resultLabel;
-
-    private static final By KEYBOARD_INDICATOR =
-            By.xpath("//android.inputmethodservice.InputMethodService | //XCUIElementTypeKeyboard");
 
     // ── Text Entry ────────────────────────────────────────────────────────────
 
@@ -117,10 +97,17 @@ public class KeyboardPage extends BasePage {
     /**
      * Presses the keyboard's Done/Return button to submit the input and dismiss the keyboard.
      * Preferred over {@link #dismissKeyboard()} when the app expects the IME action.
+     *
+     * <p>Falls back to explicitly hiding the keyboard if the field has no
+     * {@code actionDone}/{@code actionGo} IME option configured — pressing Enter
+     * on a plain field doesn't dismiss the keyboard on its own.</p>
      */
     public void pressKeyboardDone() {
         log.info("Pressing keyboard Done/Return");
         KeyboardUtils.pressKeyboardDone();
+        if (isKeyboardVisible()) {
+            KeyboardUtils.hideKeyboard();
+        }
     }
 
     // ── Android Key Events ─────────────────────────────────────────────────────
@@ -188,24 +175,5 @@ public class KeyboardPage extends BasePage {
      */
     public String getTextFieldValue() {
         return textField.getText();
-    }
-
-    /**
-     * Returns the result label text after form submission.
-     *
-     * @return result text
-     */
-    public String getResultText() {
-        WaitUtils.waitForVisible(By.xpath("//*[@resource-id='io.appium.android.apis:id/text_result'" +
-                " or @name='textResult']"), 5);
-        return resultLabel.getText();
-    }
-
-    /**
-     * Submits the form by clicking the screen Submit button (not the keyboard action).
-     */
-    public void submitForm() {
-        log.info("Submitting form");
-        submitButton.click();
     }
 }

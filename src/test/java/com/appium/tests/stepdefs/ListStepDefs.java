@@ -44,10 +44,10 @@ public class ListStepDefs {
                 .isTrue();
     }
 
-    @Then("the list result should show {string}")
-    public void listResultShouldShow(String expected) {
-        Assertions.assertThat(page.getResultText())
-                .as("List result text")
-                .contains(expected);
+    @Then("the list should no longer display item {string}")
+    public void listShouldNoLongerDisplayItem(String text) {
+        Assertions.assertThat(page.isItemDisplayed(text))
+                .as("List should no longer display: " + text)
+                .isFalse();
     }
 }

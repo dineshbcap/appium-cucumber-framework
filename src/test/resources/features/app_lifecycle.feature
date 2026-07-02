@@ -46,10 +46,11 @@ Feature: App Lifecycle Management
   Scenario: Verify session is preserved after background and restore
     # Navigate to a specific screen, background, return, verify same screen shown
     Given the text input controls screen is displayed
-    When the user sends the app to the background for 3 seconds
+    When the user enters "Hello Appium" in the text field
+    And  the user sends the app to the background for 3 seconds
     Then the app should be restored to the foreground
-    # After restore, the text input screen should still be showing
-    And the main screen should be displayed
+    # After restore, the text input screen (and its entered text) should still be showing
+    And  the text field should contain "Hello Appium"
 
   # ── Multiple Background Events ────────────────────────────────────────────────
 

@@ -7,70 +7,64 @@ import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
+/**
+ * Page object for ApiDemos' real "Views &gt; Switches" screen: 10 {@code Switch}
+ * widgets identified by their content-desc/text (e.g. "Standard switch",
+ * "Default is on"), only one of which ({@code monitored_switch}) has a
+ * resource-id — most are matched by accessibility id instead.
+ */
 public class SwitchControlPage extends BasePage {
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/toggle_wifi")
-    @iOSXCUITFindBy(accessibility = "wifiSwitch")
-    private WebElement wifiSwitch;
+    @AndroidFindBy(accessibility = "Standard switch")
+    @iOSXCUITFindBy(accessibility = "standardSwitch")
+    private WebElement standardSwitch;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/toggle_bluetooth")
-    @iOSXCUITFindBy(accessibility = "bluetoothSwitch")
-    private WebElement bluetoothSwitch;
+    @AndroidFindBy(accessibility = "Default is on")
+    @iOSXCUITFindBy(accessibility = "defaultOnSwitch")
+    private WebElement defaultOnSwitch;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/toggle_notifications")
-    @iOSXCUITFindBy(accessibility = "notificationsSwitch")
-    private WebElement notificationsSwitch;
+    @AndroidFindBy(id = "io.appium.android.apis:id/monitored_switch")
+    @iOSXCUITFindBy(accessibility = "monitoredSwitch")
+    private WebElement monitoredSwitch;
 
     @AndroidFindBy(className = "android.widget.Switch")
     @iOSXCUITFindBy(className = "XCUIElementTypeSwitch")
     private List<WebElement> allSwitches;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/switch_result")
-    @iOSXCUITFindBy(accessibility = "switchResult")
-    private WebElement resultLabel;
-
     // ── Actions ───────────────────────────────────────────────────────────────
 
-    public void toggleWifiSwitch() {
-        log.info("Toggling Wi-Fi switch");
-        wifiSwitch.click();
+    public void toggleStandardSwitch() {
+        log.info("Toggling standard switch");
+        standardSwitch.click();
     }
 
-    public void toggleBluetoothSwitch() {
-        log.info("Toggling Bluetooth switch");
-        bluetoothSwitch.click();
+    public void toggleDefaultOnSwitch() {
+        log.info("Toggling default-on switch");
+        defaultOnSwitch.click();
     }
 
-    public void toggleNotificationsSwitch() {
-        log.info("Toggling Notifications switch");
-        notificationsSwitch.click();
+    public void toggleMonitoredSwitch() {
+        log.info("Toggling monitored switch");
+        monitoredSwitch.click();
     }
 
-    public void enableWifi() {
-        if (!isWifiEnabled()) wifiSwitch.click();
+    public boolean isStandardSwitchOn() {
+        return isChecked(standardSwitch);
     }
 
-    public void disableWifi() {
-        if (isWifiEnabled()) wifiSwitch.click();
+    public boolean isDefaultOnSwitchOn() {
+        return isChecked(defaultOnSwitch);
     }
 
-    public boolean isWifiEnabled() {
-        return "true".equals(wifiSwitch.getAttribute("checked"));
-    }
-
-    public boolean isBluetoothEnabled() {
-        return "true".equals(bluetoothSwitch.getAttribute("checked"));
-    }
-
-    public boolean isNotificationsEnabled() {
-        return "true".equals(notificationsSwitch.getAttribute("checked"));
+    public boolean isMonitoredSwitchOn() {
+        return isChecked(monitoredSwitch);
     }
 
     public int getSwitchCount() {
         return allSwitches.size();
     }
 
-    public String getResultText() {
-        return resultLabel.getText();
+    private boolean isChecked(WebElement element) {
+        return "true".equals(element.getAttribute("checked"));
     }
 }

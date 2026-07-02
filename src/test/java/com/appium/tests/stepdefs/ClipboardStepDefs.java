@@ -37,25 +37,18 @@ public class ClipboardStepDefs {
         page.clearClipboard();
     }
 
-    @When("the user types {string} in the clipboard test field")
-    public void typeInClipboardField(String text) {
-        log.info("Typing '{}' in clipboard test field", text);
-        // Reuse text input page's field for the clipboard demo
-        ClipboardUtils.setClipboardText(text);
-    }
-
     @When("the user taps the copy button")
     public void tapCopyButton() {
         log.info("Tapping copy button");
-        // The copy button is app-specific — here we demonstrate via direct API
-        // In a real app, this would click the in-app "Copy" button
+        page.tapCopyPlainText();
     }
 
-    @When("the user taps the text input field")
-    public void tapTextField() {
-        // Handled in keyboard step defs — sharing step definition intentionally
-        log.info("Tapping text field (clipboard context)");
+    @When("the user pastes into the text field")
+    public void userPastesIntoTextField() {
+        page.pasteIntoTextField();
     }
+
+    // Text field tap is handled by KeyboardStepDefs.tapTextField() — shared step definition.
 
     // ── Then ──────────────────────────────────────────────────────────────────
 
@@ -66,5 +59,12 @@ public class ClipboardStepDefs {
         Assertions.assertThat(actual)
                 .as("Clipboard content")
                 .isEqualTo(expectedText);
+    }
+
+    @Then("the text field should contain the pasted text {string}")
+    public void textFieldShouldContainPastedText(String expected) {
+        Assertions.assertThat(page.getPasteTargetText())
+                .as("Pasted text field value")
+                .isEqualTo(expected);
     }
 }

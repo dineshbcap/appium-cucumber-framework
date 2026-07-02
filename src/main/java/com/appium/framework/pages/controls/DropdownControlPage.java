@@ -10,6 +10,12 @@ import org.openqa.selenium.WebElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Page object for ApiDemos' real "Views &gt; Spinner" screen: a "Color:" spinner
+ * (spinner1, values red/orange/yellow/green/blue/violet) and a "Planet:" spinner
+ * (spinner2, values Mercury..Pluto). Each spinner's currently-selected value is
+ * rendered by a child {@code android:id/text1} TextView, not the spinner node itself.
+ */
 public class DropdownControlPage extends BasePage {
 
     @AndroidFindBy(id = "io.appium.android.apis:id/spinner1")
@@ -20,10 +26,6 @@ public class DropdownControlPage extends BasePage {
     @iOSXCUITFindBy(accessibility = "spinner2")
     private WebElement spinner2;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/spinner_result")
-    @iOSXCUITFindBy(accessibility = "spinnerResult")
-    private WebElement resultLabel;
-
     private static final By DROPDOWN_ITEM =
             AppiumBy.androidUIAutomator("new UiSelector().className(\"android.widget.CheckedTextView\")");
 
@@ -32,11 +34,18 @@ public class DropdownControlPage extends BasePage {
     public void openDropdown1() {
         log.info("Opening spinner/dropdown 1");
         spinner1.click();
+        findElement(DROPDOWN_ITEM); // wait for the popup to render before returning
     }
 
     public void openDropdown2() {
         log.info("Opening spinner/dropdown 2");
         spinner2.click();
+        findElement(DROPDOWN_ITEM); // wait for the popup to render before returning
+    }
+
+    public void closeDropdown() {
+        log.info("Closing dropdown popup");
+        navigateBack();
     }
 
     public void selectByText(String optionText) {
@@ -69,11 +78,11 @@ public class DropdownControlPage extends BasePage {
     }
 
     public String getSelectedDropdown1Value() {
-        return spinner1.getText();
+        return spinner1.findElement(By.className("android.widget.TextView")).getText();
     }
 
     public String getSelectedDropdown2Value() {
-        return spinner2.getText();
+        return spinner2.findElement(By.className("android.widget.TextView")).getText();
     }
 
     public List<String> getAllDropdown1Options() {
@@ -84,9 +93,5 @@ public class DropdownControlPage extends BasePage {
                 .collect(Collectors.toList());
         navigateBack();
         return options;
-    }
-
-    public String getResultText() {
-        return resultLabel.getText();
     }
 }

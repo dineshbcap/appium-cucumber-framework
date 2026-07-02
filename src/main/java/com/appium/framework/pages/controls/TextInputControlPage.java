@@ -1,36 +1,25 @@
 package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
-import io.appium.java_client.AppiumBy;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+/**
+ * Page object for ApiDemos' real "Views &gt; TextFields" screen. The first field
+ * ({@code edit}) is a plain text field with hint text; the second ({@code edit1})
+ * is a real password-masked field. This screen has no submit button or result
+ * label — those don't exist here.
+ */
 public class TextInputControlPage extends BasePage {
 
     @AndroidFindBy(id = "io.appium.android.apis:id/edit")
     @iOSXCUITFindBy(accessibility = "textField")
     private WebElement textField;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/password")
+    @AndroidFindBy(id = "io.appium.android.apis:id/edit1")
     @iOSXCUITFindBy(accessibility = "passwordField")
     private WebElement passwordField;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/multiline_edit")
-    @iOSXCUITFindBy(accessibility = "multilineField")
-    private WebElement multilineField;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/submit_button")
-    @iOSXCUITFindBy(accessibility = "submitButton")
-    private WebElement submitButton;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/text_result")
-    @iOSXCUITFindBy(accessibility = "textResult")
-    private WebElement textResult;
-
-    private static final By TEXT_FIELD =
-            AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"io.appium.android.apis:id/edit\")");
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -53,45 +42,28 @@ public class TextInputControlPage extends BasePage {
         passwordField.sendKeys(password);
     }
 
-    public void enterMultilineText(String text) {
-        log.info("Entering multiline text");
-        multilineField.click();
-        multilineField.clear();
-        multilineField.sendKeys(text);
-    }
-
-    public void submitForm() {
-        log.info("Submitting form");
-        submitButton.click();
+    public void appendText(String text) {
+        log.info("Appending text: {}", text);
+        // UiAutomator2's sendKeys replaces an EditText's content rather than
+        // inserting at the cursor, so a true append needs the full string set at once.
+        String existing = textField.getText();
+        textField.clear();
+        textField.sendKeys(existing + text);
     }
 
     public String getTextFieldValue() {
         return textField.getText();
     }
 
-    public String getPasswordFieldValue() {
-        return passwordField.getText();
+    /**
+     * Returns {@code true} if the field is showing its placeholder hint rather
+     * than user-entered text — UiAutomator2 reports the hint via getText() when empty.
+     */
+    public boolean isTextFieldEmpty() {
+        return "hint text".equals(textField.getText());
     }
 
-    public String getResultText() {
-        return textResult.getText();
-    }
-
-    public boolean isTextFieldFocused() {
-        return Boolean.parseBoolean(textField.getAttribute("focused"));
-    }
-
-    public void appendText(String text) {
-        log.info("Appending text: {}", text);
-        textField.sendKeys(text);
-    }
-
-    public void tapOutsideKeyboard() {
-        By outsideArea = By.xpath("//*[@content-desc='screen']");
-        if (isDisplayed(outsideArea)) {
-            click(outsideArea);
-        } else {
-            navigateBack();
-        }
+    public boolean isPasswordFieldFocused() {
+        return Boolean.parseBoolean(passwordField.getAttribute("focused"));
     }
 }

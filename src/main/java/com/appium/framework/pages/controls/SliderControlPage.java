@@ -8,71 +8,71 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
 
+/**
+ * Page object for ApiDemos' real "Views &gt; Seek Bar" screen: a single SeekBar
+ * ({@code seek}) with a "progress" label whose text looks like
+ * "77 from touch=true" — the numeric progress is the leading token, there is
+ * no separate numeric-only attribute or second seek bar on this screen.
+ */
 public class SliderControlPage extends BasePage {
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/seekBar1")
+    @AndroidFindBy(id = "io.appium.android.apis:id/seek")
     @iOSXCUITFindBy(accessibility = "slider1")
     private WebElement seekBar;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/seekBar2")
-    @iOSXCUITFindBy(accessibility = "slider2")
-    private WebElement seekBar2;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/slider_value")
+    @AndroidFindBy(id = "io.appium.android.apis:id/progress")
     @iOSXCUITFindBy(accessibility = "sliderValue")
-    private WebElement valueLabel;
+    private WebElement progressLabel;
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
-    /**
-     * Sets slider to a percentage value (0-100).
-     */
     public void setSliderValue(int percent) {
         log.info("Setting slider to {}%", percent);
-        setSliderToPercent(seekBar, percent);
-    }
-
-    public void setSlider2Value(int percent) {
-        log.info("Setting slider2 to {}%", percent);
-        setSliderToPercent(seekBar2, percent);
+        setSliderToPercent(percent);
     }
 
     public void slideToMin() {
         log.info("Sliding to minimum");
-        setSliderToPercent(seekBar, 0);
+        setSliderToPercent(0);
     }
 
     public void slideToMax() {
         log.info("Sliding to maximum");
-        setSliderToPercent(seekBar, 100);
+        setSliderToPercent(100);
     }
 
     public void slideTo50Percent() {
-        setSliderToPercent(seekBar, 50);
+        setSliderToPercent(50);
     }
 
-    public String getSliderValue() {
-        return seekBar.getAttribute("value");
-    }
-
-    public String getValueLabelText() {
-        return valueLabel.getText();
+    /**
+     * Returns the numeric progress value parsed from the "NN from touch=..." label.
+     * Coordinate-based dragging lands exactly on 0/50/100 but can be off by a
+     * couple of percent at other targets — callers should compare with tolerance.
+     */
+    public int getProgressValue() {
+        String text = progressLabel.getText().trim();
+        return Integer.parseInt(text.split("\\s+")[0]);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private void setSliderToPercent(WebElement slider, int percent) {
+    private void setSliderToPercent(int percent) {
         if (percent < 0) percent = 0;
         if (percent > 100) percent = 100;
 
-        Point location = slider.getLocation();
-        Dimension size = slider.getSize();
+        Point location = seekBar.getLocation();
+        Dimension size = seekBar.getSize();
 
-        int startX = location.getX();
-        int endX = location.getX() + size.width;
-        int targetX = startX + (int) ((endX - startX) * percent / 100.0);
+        int startX = location.getX() + size.width / 2;
+        int targetX = location.getX() + (int) (size.width * percent / 100.0);
+        // A zero-distance drag (target == center, i.e. percent == 50) registers as a tap,
+        // not a slide, and never fires the SeekBar's progress-changed listener.
+        if (startX == targetX) {
+            startX += 20;
+        }
         int y = location.getY() + size.height / 2;
 
-        GestureUtils.swipe(startX + size.width / 2, y, targetX, y, 600);
+        GestureUtils.swipe(startX, y, targetX, y, 600);
     }
 }

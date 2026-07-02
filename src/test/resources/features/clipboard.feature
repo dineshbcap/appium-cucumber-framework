@@ -4,9 +4,6 @@ Feature: Clipboard Operations
   I want to interact with the device clipboard
   So that I can verify copy-to-clipboard features and paste behaviors
 
-  Background:
-    Given the text input controls screen is displayed
-
   # ── Set Clipboard via API ──────────────────────────────────────────────────────
 
   @smoke @setClipboard
@@ -18,9 +15,18 @@ Feature: Clipboard Operations
 
   @smoke @copyViaUi
   Scenario: Copy content using the app's Copy button
-    When the user types "Copy This Text" in the clipboard test field
-    And the user taps the copy button
-    Then the clipboard should contain "Copy This Text"
+    Given the clipboard screen is displayed
+    When the user taps the copy button
+    Then the clipboard should contain "Plain, bold, italic, bold-italic"
+
+  # ── Paste via UI ───────────────────────────────────────────────────────────────
+
+  @smoke @pasteViaUi
+  Scenario: Paste clipboard content into a real text field
+    Given the text input controls screen is displayed
+    When the clipboard is set to "Pasted Value"
+    And  the user pastes into the text field
+    Then the text field should contain the pasted text "Pasted Value"
 
   # ── Clear Clipboard ────────────────────────────────────────────────────────────
 
@@ -34,6 +40,7 @@ Feature: Clipboard Operations
 
   @persistence
   Scenario: Clipboard content persists across field interactions
+    Given the text input controls screen is displayed
     When the clipboard is set to "Persistent Text"
     And the user taps the text input field
     Then the clipboard should contain "Persistent Text"

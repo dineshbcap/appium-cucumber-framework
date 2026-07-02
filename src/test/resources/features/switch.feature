@@ -8,25 +8,25 @@ Feature: Switch / Toggle Controls
     Given the switch controls screen is displayed
 
   @toggle
-  Scenario: Toggle the Wi-Fi switch on
-    When the user enables Wi-Fi
-    Then the Wi-Fi switch should be on
+  Scenario: Toggle the standard switch on
+    When the user toggles the standard switch
+    Then the standard switch should be on
 
   @toggleOff
-  Scenario: Toggle the Wi-Fi switch off
-    When the user enables Wi-Fi
-    And  the user disables Wi-Fi
-    Then the Wi-Fi switch should be off
+  Scenario: Toggle the standard switch off after enabling
+    When the user toggles the standard switch
+    And  the user toggles the standard switch
+    Then the standard switch should be off
 
-  @bluetooth
-  Scenario: Toggle the Bluetooth switch
-    When the user toggles the Bluetooth switch
-    Then the Bluetooth switch should be on
+  @defaultOn
+  Scenario: Default-on switch starts enabled
+    Then the default-on switch should be on
 
-  @notifications
-  Scenario: Toggle the Notifications switch
-    When the user toggles the Notifications switch
+  @monitored
+  Scenario: Toggle the monitored switch
+    When the user toggles the monitored switch
+    Then the monitored switch should be on
 
   @count
   Scenario: Verify number of switches on screen
-    Then the page should have 3 switches
+    Then the page should have 9 switches

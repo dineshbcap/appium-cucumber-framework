@@ -13,7 +13,6 @@ public class CheckboxStepDefs {
         switch (number) {
             case 1 -> page.checkCheckbox1();
             case 2 -> page.toggleCheckbox2();
-            case 3 -> page.toggleCheckbox3();
             default -> throw new IllegalArgumentException("Unknown checkbox: " + number);
         }
     }
@@ -28,7 +27,6 @@ public class CheckboxStepDefs {
         switch (number) {
             case 1 -> page.toggleCheckbox1();
             case 2 -> page.toggleCheckbox2();
-            case 3 -> page.toggleCheckbox3();
             default -> throw new IllegalArgumentException("Unknown checkbox: " + number);
         }
     }
@@ -48,7 +46,6 @@ public class CheckboxStepDefs {
         boolean checked = switch (number) {
             case 1 -> page.isCheckbox1Checked();
             case 2 -> page.isCheckbox2Checked();
-            case 3 -> page.isCheckbox3Checked();
             default -> throw new IllegalArgumentException("Unknown checkbox: " + number);
         };
         Assertions.assertThat(checked).as("Checkbox " + number + " checked state").isTrue();
@@ -59,7 +56,6 @@ public class CheckboxStepDefs {
         boolean checked = switch (number) {
             case 1 -> page.isCheckbox1Checked();
             case 2 -> page.isCheckbox2Checked();
-            case 3 -> page.isCheckbox3Checked();
             default -> throw new IllegalArgumentException("Unknown checkbox: " + number);
         };
         Assertions.assertThat(checked).as("Checkbox " + number + " should be unchecked").isFalse();

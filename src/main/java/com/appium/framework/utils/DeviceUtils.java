@@ -5,9 +5,11 @@ import com.appium.framework.driver.DriverManager;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.LocksDevice;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.remote.SupportsRotation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.ScreenOrientation;
 
 import java.time.Duration;
 import java.util.Map;
@@ -53,16 +55,16 @@ public class DeviceUtils {
     // ── Screen Orientation ────────────────────────────────────────────────────
 
     /**
-     * Rotates the device to landscape mode using the {@code mobile:setOrientation} command.
+     * Rotates the device to landscape mode via the {@link Rotatable} interface.
      *
      * <p>Triggers screen rotation events in the app just like a physical device tilt.
-     * The {@code mobile:setOrientation} script command works consistently on both
-     * UiAutomator2 (Android) and XCUITest (iOS) drivers in Appium 8.x.</p>
+     * {@code mobile:setOrientation}/{@code mobile:getOrientation} are not implemented
+     * by this UiAutomator2 driver version — {@link Rotatable#rotate} is the standard
+     * WebDriver-level API both AndroidDriver and IOSDriver actually support.</p>
      */
     public static void rotateToLandscape() {
         log.info("Rotating device to LANDSCAPE");
-        DriverManager.getDriver().executeScript("mobile:setOrientation",
-                Map.of("orientation", LANDSCAPE));
+        rotatable().rotate(ScreenOrientation.LANDSCAPE);
     }
 
     /**
@@ -70,8 +72,7 @@ public class DeviceUtils {
      */
     public static void rotateToPortrait() {
         log.info("Rotating device to PORTRAIT");
-        DriverManager.getDriver().executeScript("mobile:setOrientation",
-                Map.of("orientation", PORTRAIT));
+        rotatable().rotate(ScreenOrientation.PORTRAIT);
     }
 
     /**
@@ -81,15 +82,17 @@ public class DeviceUtils {
      */
     public static String getOrientation() {
         try {
-            Object result = DriverManager.getDriver()
-                    .executeScript("mobile:getOrientation");
-            String orientation = result != null ? result.toString().toUpperCase() : PORTRAIT;
+            String orientation = rotatable().getOrientation().name();
             log.info("Current orientation: {}", orientation);
             return orientation;
         } catch (Exception e) {
             log.warn("Could not get orientation: {}", e.getMessage());
             return PORTRAIT;
         }
+    }
+
+    private static SupportsRotation rotatable() {
+        return (SupportsRotation) DriverManager.getDriver();
     }
 
     /**

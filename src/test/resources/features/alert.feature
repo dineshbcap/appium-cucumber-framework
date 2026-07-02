@@ -12,30 +12,24 @@ Feature: Alert and Dialog Controls
     When the user triggers a simple alert
     Then the alert should be displayed
     When the user accepts the alert
-    Then the alert result should show "OK"
-
-  @confirmAccept
-  Scenario: Accept a confirm dialog
-    When the user triggers a confirm dialog
-    Then the alert should be displayed
-    And  the alert title should be "Confirm"
-    When the user accepts the alert
-    Then the alert result should show "Confirmed"
+    Then the alert should not be displayed
 
   @confirmDismiss
   Scenario: Dismiss a confirm dialog
     When the user triggers a confirm dialog
+    Then the alert should be displayed
     When the user dismisses the alert
-    Then the alert result should show "Cancelled"
+    Then the alert should not be displayed
 
   @prompt
   Scenario: Enter text in a prompt dialog
     When the user triggers a prompt dialog
-    And  the user enters "My Input" in the prompt
+    Then the alert title should be "Text Entry dialog"
+    When the user enters "My Input" in the prompt
     And  the user accepts the alert
-    Then the alert result should show "My Input"
+    Then the alert should not be displayed
 
   @alertMessage
   Scenario: Verify alert message content
     When the user triggers a simple alert
-    Then the alert message should contain "This is an alert"
+    Then the alert message should contain "Lorem ipsum"

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class ListControlPage extends BasePage {
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/list")
+    @AndroidFindBy(id = "android:id/list")
     @iOSXCUITFindBy(accessibility = "mainList")
     private WebElement listView;
 
@@ -23,10 +23,6 @@ public class ListControlPage extends BasePage {
     @AndroidFindBy(xpath = "//android.widget.ListView//android.widget.TextView")
     @iOSXCUITFindBy(className = "XCUIElementTypeCell")
     private List<WebElement> listItems;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/list_result")
-    @iOSXCUITFindBy(accessibility = "listResult")
-    private WebElement resultLabel;
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -49,7 +45,7 @@ public class ListControlPage extends BasePage {
         By uiScrollable = AppiumBy.androidUIAutomator(
                 "new UiScrollable(new UiSelector().scrollable(true))" +
                 ".scrollIntoView(new UiSelector().text(\"" + text + "\"))");
-        click(uiScrollable);
+        findElement(uiScrollable);
     }
 
     public String getItemTextAtIndex(int index) {
@@ -64,10 +60,6 @@ public class ListControlPage extends BasePage {
 
     public int getItemCount() {
         return listItems.size();
-    }
-
-    public String getResultText() {
-        return resultLabel.getText();
     }
 
     public boolean isItemDisplayed(String text) {

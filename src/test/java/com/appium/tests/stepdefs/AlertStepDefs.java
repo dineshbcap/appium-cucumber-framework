@@ -59,10 +59,10 @@ public class AlertStepDefs {
                 .contains(expected);
     }
 
-    @Then("the alert result should show {string}")
-    public void alertResultShouldShow(String expected) {
-        Assertions.assertThat(page.getResultText())
-                .as("Alert result")
-                .contains(expected);
+    @Then("the alert should not be displayed")
+    public void alertShouldNotBeDisplayed() {
+        Assertions.assertThat(page.isAlertDisplayed())
+                .as("Alert dialog should be dismissed")
+                .isFalse();
     }
 }

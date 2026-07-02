@@ -28,7 +28,7 @@ Feature: Keyboard Interaction
     When the user types "Hello Appium" in the keyboard page field
     Then the text field should display "Hello Appium"
 
-  @typing
+  @typing @debug
   Scenario: Clear field using backspace key
     When the user types "ABC" in the keyboard page field
     And the user presses the Backspace key
@@ -43,10 +43,10 @@ Feature: Keyboard Interaction
   # ── Android Key Events ─────────────────────────────────────────────────────────
 
   @androidOnly @keyEvents
-  Scenario: Press Enter key to submit text
+  Scenario: Press Enter key on a single-line field
     When the user types "TestInput" in the keyboard page field
     And the user presses the Enter key
-    Then the form result should show "TestInput"
+    Then the text field should display "TestInput"
 
   @androidOnly @keyEvents
   Scenario: Press Tab key to move focus between fields

@@ -49,8 +49,11 @@ public class DeepLinkStepDefs {
     public void openDeepLinkToApp() {
         // Uses the platform's appropriate deep link strategy
         if (ConfigReader.isAndroid()) {
-            // Navigate to a known screen in ApiDemos via intent
-            page.openAndroidDeepLink(
+            // Launch the known ApiDemos activity directly via mobile:startActivity.
+            // This is a component launch (package/activity), not a URI-based deep
+            // link, so it goes through AppUtils rather than DeepLinkPage's
+            // URI-intent method.
+            AppUtils.startAndroidActivity(
                     ConfigReader.get("android.appPackage"),
                     "io.appium.android.apis.ApiDemos"
             );
@@ -62,15 +65,15 @@ public class DeepLinkStepDefs {
 
     // ── Then ──────────────────────────────────────────────────────────────────
 
-    @Then("the app should be running in the foreground")
-    public void appShouldBeRunningInForeground() {
+    @Then("the app should be running in the foreground deeplink")
+    public void appShouldBeRunningInForegroundDeeplink() {
         Assertions.assertThat(AppUtils.isAppInForeground())
                 .as("App should be running in foreground after deep link")
                 .isTrue();
     }
 
-    @Then("the main screen should be displayed")
-    public void mainScreenShouldBeDisplayed() {
+    @Then("the main screen should be displayed deeplink")
+    public void mainScreenShouldBeDisplayedDeeplink() {
         // Re-use the assertion — main screen visible = deep link landed correctly
         Assertions.assertThat(AppUtils.isAppRunning())
                 .as("App should be running after deep link navigation")

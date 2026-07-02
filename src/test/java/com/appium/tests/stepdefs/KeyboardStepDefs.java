@@ -119,12 +119,4 @@ public class KeyboardStepDefs {
                 .isEqualTo(expectedText);
     }
 
-    @Then("the form result should show {string}")
-    public void formResultShouldShow(String expectedText) {
-        // After pressing Enter in a field with imeOptions="actionDone", the result is shown
-        String result = page.getResultText();
-        Assertions.assertThat(result)
-                .as("Form result")
-                .contains(expectedText);
-    }
 }

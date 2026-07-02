@@ -25,21 +25,6 @@ Feature: Checkbox Controls
     Then checkbox 1 should be checked
     And  checkbox 2 should be checked
 
-  @all
-  Scenario: Check all checkboxes
-    When the user checks all checkboxes
-    Then checkbox 1 should be checked
-    And  checkbox 2 should be checked
-    And  checkbox 3 should be checked
-
-  @uncheckAll
-  Scenario: Uncheck all checkboxes
-    When the user checks all checkboxes
-    And  the user unchecks all checkboxes
-    Then checkbox 1 should be unchecked
-    And  checkbox 2 should be unchecked
-    And  checkbox 3 should be unchecked
-
   @count
   Scenario: Verify total number of checkboxes
     Then the page should have 3 checkboxes

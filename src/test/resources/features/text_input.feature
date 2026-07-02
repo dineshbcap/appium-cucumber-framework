@@ -21,24 +21,13 @@ Feature: Text Input Controls
   @password
   Scenario: Enter password in password field
     When the user enters password "P@ssword123"
-    Then the text field should be focused
-
-  @multiline
-  Scenario: Enter multiline text
-    When the user enters multiline text "Line1\nLine2\nLine3"
-    Then the input result should show "Line1"
+    Then the password field should be focused
 
   @append
   Scenario: Append text to existing input
     When the user enters "Hello" in the text field
     And  the user appends " World" to the text field
     Then the text field should contain "Hello World"
-
-  @submit
-  Scenario: Submit form with text
-    When the user enters "TestUser" in the text field
-    And  the user submits the form
-    Then the input result should show "TestUser"
 
   @parameterized
   Scenario Outline: Enter various input types

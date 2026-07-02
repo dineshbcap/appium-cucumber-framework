@@ -21,12 +21,12 @@ Feature: Radio Button Controls
 
   @byIndex
   Scenario: Select radio button by index
-    When the user selects radio button at index 2
-    Then the selected radio index should be 2
+    When the user selects radio button at index 1
+    Then the selected radio index should be 1
 
   @count
   Scenario: Verify number of radio buttons
-    Then there should be 3 radio buttons
+    Then there should be 2 radio buttons
 
   @parameterized
   Scenario Outline: Select each radio button
@@ -36,4 +36,3 @@ Feature: Radio Button Controls
       | number |
       | 1      |
       | 2      |
-      | 3      |

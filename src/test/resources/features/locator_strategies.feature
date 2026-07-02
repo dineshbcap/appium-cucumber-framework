@@ -22,7 +22,7 @@ Feature: Appium Locator Strategies
   Scenario: Find element by resource ID on Android
     # Uses the Android resource-id (e.g., "com.package:id/element_id")
     # Fastest locator strategy on Android when IDs are stable
-    When the user finds element by ID "io.appium.android.apis:id/list"
+    When the user finds element by ID "android:id/list"
     Then the element should be found and visible
 
   # ── By.className ──────────────────────────────────────────────────────────────

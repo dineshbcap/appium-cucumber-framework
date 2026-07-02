@@ -207,9 +207,10 @@ public class AppUtils {
      */
     public static int getAppState(String appId) {
         try {
+            String paramKey = ConfigReader.isAndroid() ? "appId" : "bundleId";
             Object result = DriverManager.getDriver().executeScript(
                     "mobile:queryAppState",
-                    Map.of("bundleId", appId));
+                    Map.of(paramKey, appId));
             int state = ((Number) result).intValue();
             log.info("App '{}' state: {}", appId, state);
             return state;

@@ -246,6 +246,29 @@ public class KeyboardUtils {
     }
 
     /**
+     * Pastes the current clipboard content into the focused field using the
+     * platform-appropriate shortcut.
+     *
+     * <p>Android: uses the Ctrl+V key combination via mobile command — more
+     * reliable than tapping the floating "Paste" popup/toolbar, which is
+     * transient and not always present in the accessibility tree.
+     * iOS: uses {@code mobile:pasteboard}.</p>
+     */
+    public static void pasteText() {
+        log.info("Pasting clipboard content into focused field");
+        if (ConfigReader.isAndroid()) {
+            try {
+                DriverManager.getDriver().executeScript("mobile:pressKey",
+                        Map.of("keycode", 50, "metastate", 4096)); // 50=V, 4096=CTRL_ON
+            } catch (Exception e) {
+                log.warn("Ctrl+V paste failed: {}", e.getMessage());
+            }
+        } else {
+            DriverManager.getDriver().executeScript("mobile:pasteboard", Map.of("content", ""));
+        }
+    }
+
+    /**
      * Clears all text from the focused field by selecting all and deleting.
      * More reliable than {@code WebElement.clear()} on some iOS configurations.
      */

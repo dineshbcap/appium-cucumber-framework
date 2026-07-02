@@ -7,27 +7,24 @@ import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
+/**
+ * Page object for ApiDemos' real "Views &gt; Controls &gt; 1. Light Theme" screen,
+ * which has exactly two checkboxes ({@code check1}, {@code check2}) and no
+ * separate result label — checked state is read directly from each checkbox.
+ */
 public class CheckboxControlPage extends BasePage {
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/checkbox_1")
+    @AndroidFindBy(id = "io.appium.android.apis:id/check1")
     @iOSXCUITFindBy(accessibility = "checkbox1")
     private WebElement checkbox1;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/checkbox_2")
+    @AndroidFindBy(id = "io.appium.android.apis:id/check2")
     @iOSXCUITFindBy(accessibility = "checkbox2")
     private WebElement checkbox2;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/checkbox_3")
-    @iOSXCUITFindBy(accessibility = "checkbox3")
-    private WebElement checkbox3;
 
     @AndroidFindBy(className = "android.widget.CheckBox")
     @iOSXCUITFindBy(className = "XCUIElementTypeSwitch")
     private List<WebElement> allCheckboxes;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/checkbox_result")
-    @iOSXCUITFindBy(accessibility = "checkboxResult")
-    private WebElement resultLabel;
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -51,21 +48,12 @@ public class CheckboxControlPage extends BasePage {
         checkbox2.click();
     }
 
-    public void toggleCheckbox3() {
-        log.info("Toggling checkbox 3");
-        checkbox3.click();
-    }
-
     public boolean isCheckbox1Checked() {
         return isChecked(checkbox1);
     }
 
     public boolean isCheckbox2Checked() {
         return isChecked(checkbox2);
-    }
-
-    public boolean isCheckbox3Checked() {
-        return isChecked(checkbox3);
     }
 
     public int getTotalCheckboxCount() {
@@ -80,10 +68,6 @@ public class CheckboxControlPage extends BasePage {
     public void uncheckAllCheckboxes() {
         log.info("Unchecking all checkboxes");
         allCheckboxes.forEach(cb -> { if (isChecked(cb)) cb.click(); });
-    }
-
-    public String getResultText() {
-        return resultLabel.getText();
     }
 
     private boolean isChecked(WebElement element) {

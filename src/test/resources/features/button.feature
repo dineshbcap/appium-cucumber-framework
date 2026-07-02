@@ -8,19 +8,22 @@ Feature: Button Controls
     Given the button controls screen is displayed
 
   @tap
-  Scenario: Single tap on a button
-    When the user taps the button
-    Then the button result should contain "Tapped"
+  Scenario: Tap the Normal button
+    When the user taps the Normal button
+    Then the Normal button should remain displayed and enabled
 
-  @longPress
-  Scenario: Long press on a button
-    When the user long presses the button
-    Then the button result should contain "Long Pressed"
+  @tap
+  Scenario: Tap the Small button
+    When the user taps the Small button
+    Then the Normal button should remain displayed and enabled
 
-  @doubleTap
-  Scenario: Double tap on a button
-    When the user double taps the button
-    Then the button result should contain "Double Tapped"
+  @toggle
+  Scenario: Toggle button switches between ON and OFF
+    Then the toggle button should show "OFF"
+    When the user taps the toggle button
+    Then the toggle button should show "ON"
+    When the user taps the toggle button
+    Then the toggle button should show "OFF"
 
   @visibility
   Scenario: Button visibility and enabled state
@@ -29,10 +32,9 @@ Feature: Button Controls
 
   @parameterized
   Scenario Outline: Tap named buttons
-    When the user taps the button with text "<buttonText>"
-    Then the button result should contain "<result>"
+    When the user taps the button labeled "<label>"
+    Then the Normal button should remain displayed and enabled
     Examples:
-      | buttonText | result    |
-      | Submit     | Submitted |
-      | Cancel     | Cancelled |
-      | Reset      | Reset     |
+      | label  |
+      | Normal |
+      | Small  |

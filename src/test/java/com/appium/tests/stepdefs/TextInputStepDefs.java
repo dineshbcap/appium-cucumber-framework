@@ -23,19 +23,9 @@ public class TextInputStepDefs {
         page.enterPassword(password);
     }
 
-    @When("the user enters multiline text {string}")
-    public void userEntersMultilineText(String text) {
-        page.enterMultilineText(text);
-    }
-
     @When("the user appends {string} to the text field")
     public void userAppendsText(String text) {
         page.appendText(text);
-    }
-
-    @When("the user submits the form")
-    public void userSubmitsForm() {
-        page.submitForm();
     }
 
     @Then("the text field should contain {string}")
@@ -47,22 +37,15 @@ public class TextInputStepDefs {
 
     @Then("the text field should be empty")
     public void textFieldShouldBeEmpty() {
-        Assertions.assertThat(page.getTextFieldValue())
-                .as("Text field should be empty")
-                .isEmpty();
-    }
-
-    @Then("the text field should be focused")
-    public void textFieldShouldBeFocused() {
-        Assertions.assertThat(page.isTextFieldFocused())
-                .as("Text field should be focused")
+        Assertions.assertThat(page.isTextFieldEmpty())
+                .as("Text field should be empty (showing hint text)")
                 .isTrue();
     }
 
-    @Then("the input result should show {string}")
-    public void inputResultShouldShow(String expected) {
-        Assertions.assertThat(page.getResultText())
-                .as("Input result")
-                .contains(expected);
+    @Then("the password field should be focused")
+    public void passwordFieldShouldBeFocused() {
+        Assertions.assertThat(page.isPasswordFieldFocused())
+                .as("Password field should be focused")
+                .isTrue();
     }
 }

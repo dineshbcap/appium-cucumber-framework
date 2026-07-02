@@ -8,44 +8,34 @@ public class SwitchStepDefs {
 
     private final SwitchControlPage page = new SwitchControlPage();
 
-    @When("the user toggles the Wi-Fi switch")
-    public void userTogglesWifiSwitch() {
-        page.toggleWifiSwitch();
+    @When("the user toggles the standard switch")
+    public void userTogglesStandardSwitch() {
+        page.toggleStandardSwitch();
     }
 
-    @When("the user toggles the Bluetooth switch")
-    public void userTogglesBluetoothSwitch() {
-        page.toggleBluetoothSwitch();
+    @When("the user toggles the monitored switch")
+    public void userTogglesMonitoredSwitch() {
+        page.toggleMonitoredSwitch();
     }
 
-    @When("the user toggles the Notifications switch")
-    public void userTogglesNotificationsSwitch() {
-        page.toggleNotificationsSwitch();
+    @Then("the standard switch should be on")
+    public void standardSwitchShouldBeOn() {
+        Assertions.assertThat(page.isStandardSwitchOn()).as("Standard switch on").isTrue();
     }
 
-    @When("the user enables Wi-Fi")
-    public void userEnablesWifi() {
-        page.enableWifi();
+    @Then("the standard switch should be off")
+    public void standardSwitchShouldBeOff() {
+        Assertions.assertThat(page.isStandardSwitchOn()).as("Standard switch off").isFalse();
     }
 
-    @When("the user disables Wi-Fi")
-    public void userDisablesWifi() {
-        page.disableWifi();
+    @Then("the default-on switch should be on")
+    public void defaultOnSwitchShouldBeOn() {
+        Assertions.assertThat(page.isDefaultOnSwitchOn()).as("Default-on switch on").isTrue();
     }
 
-    @Then("the Wi-Fi switch should be on")
-    public void wifiSwitchShouldBeOn() {
-        Assertions.assertThat(page.isWifiEnabled()).as("Wi-Fi switch on").isTrue();
-    }
-
-    @Then("the Wi-Fi switch should be off")
-    public void wifiSwitchShouldBeOff() {
-        Assertions.assertThat(page.isWifiEnabled()).as("Wi-Fi switch off").isFalse();
-    }
-
-    @Then("the Bluetooth switch should be on")
-    public void bluetoothSwitchShouldBeOn() {
-        Assertions.assertThat(page.isBluetoothEnabled()).as("Bluetooth switch on").isTrue();
+    @Then("the monitored switch should be on")
+    public void monitoredSwitchShouldBeOn() {
+        Assertions.assertThat(page.isMonitoredSwitchOn()).as("Monitored switch on").isTrue();
     }
 
     @Then("the page should have {int} switches")

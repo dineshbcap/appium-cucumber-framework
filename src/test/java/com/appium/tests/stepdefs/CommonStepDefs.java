@@ -28,57 +28,61 @@ public class CommonStepDefs {
 
     @Given("the button controls screen is displayed")
     public void navigateToButtonScreen() {
-        navigateToScreen("Button Controls");
+        navigateToScreen("Views", "Buttons");
     }
 
     @Given("the text input controls screen is displayed")
     public void navigateToTextInputScreen() {
-        navigateToScreen("Text Input");
+        navigateToScreen("Views", "TextFields");
     }
 
     @Given("the checkbox controls screen is displayed")
     public void navigateToCheckboxScreen() {
-        navigateToScreen("Checkboxes");
+        navigateToScreen("Views", "Controls", "1. Light Theme");
     }
 
     @Given("the radio button controls screen is displayed")
     public void navigateToRadioScreen() {
-        navigateToScreen("Radio Buttons");
+        navigateToScreen("Views", "Controls", "1. Light Theme");
     }
 
     @Given("the dropdown controls screen is displayed")
     public void navigateToDropdownScreen() {
-        navigateToScreen("Spinners");
+        navigateToScreen("Views", "Spinner");
     }
 
     @Given("the slider controls screen is displayed")
     public void navigateToSliderScreen() {
-        navigateToScreen("Seek Bar");
+        navigateToScreen("Views", "Seek Bar");
     }
 
     @Given("the scroll controls screen is displayed")
     public void navigateToScrollScreen() {
-        navigateToScreen("Scroll View");
+        // The "Views" submenu (~40 items) is a real, naturally scrollable list —
+        // no dedicated "Scroll View" screen with top/bottom markers exists in this app.
+        navigateToScreen("Views");
     }
 
     @Given("the alert controls screen is displayed")
     public void navigateToAlertScreen() {
-        navigateToScreen("Alert Dialogs");
+        navigateToScreen("App", "Alert Dialogs");
     }
 
     @Given("the date picker controls screen is displayed")
     public void navigateToDatePickerScreen() {
-        navigateToScreen("Date Widgets");
+        navigateToScreen("Views", "Date Widgets", "1. Dialog");
     }
 
     @Given("the gesture controls screen is displayed")
     public void navigateToGestureScreen() {
-        navigateToScreen("Gestures");
+        // No dedicated "Gestures" screen exists in this app — "Drag and Drop" is
+        // the only gesture demo with a real, observable result.
+        navigateToScreen("Views", "Drag and Drop");
     }
 
     @Given("the switch controls screen is displayed")
     public void navigateToSwitchScreen() {
-        navigateToScreen("Toggle Buttons");
+        navigateToScreen("Views", "Switches");
     }
 
     @Given("the list controls screen is displayed")
@@ -89,7 +93,7 @@ public class CommonStepDefs {
 
     @Given("the WebView controls screen is displayed")
     public void navigateToWebViewScreen() {
-        navigateToScreen("WebView");
+        navigateToScreen("Views", "WebView");
     }
 
     // ── New Advanced Screens ───────────────────────────────────────────────────
@@ -112,16 +116,15 @@ public class CommonStepDefs {
      */
     @Given("the keyboard screen is displayed")
     public void navigateToKeyboardScreen() {
-        navigateToScreen("Text Input");
+        navigateToScreen("Views", "TextFields");
     }
 
     /**
-     * Navigates to the clipboard test screen.
-     * Reuses the text input screen which has copy/paste capabilities.
+     * Navigates to the real clipboard demo screen (Content &gt; Clipboard &gt; Data Types).
      */
     @Given("the clipboard screen is displayed")
     public void navigateToClipboardScreen() {
-        navigateToScreen("Text Input");
+        navigateToScreen("Content", "Clipboard", "Data Types");
     }
 
     /**
@@ -168,36 +171,41 @@ public class CommonStepDefs {
     // ── Private Helper ────────────────────────────────────────────────────────
 
     /**
-     * Navigates to a screen by its visible text label using UiScrollable (Android) or
-     * XPath text match (iOS). The UiScrollable approach is much faster because it uses
-     * the Android Accessibility framework rather than pixel-based gestures.
+     * Navigates through a sequence of nested list screens by visible text label,
+     * using UiScrollable (Android) or XPath text match (iOS). Each element in
+     * {@code screenPath} is tapped in order — e.g. {@code ("Views", "Buttons")}
+     * first taps "Views" on the ApiDemos home list, then "Buttons" on the
+     * resulting submenu. The UiScrollable approach is much faster than
+     * pixel-based gestures because it uses the Android Accessibility framework.
      *
-     * @param screenName the visible text label of the target navigation item
+     * @param screenPath the visible text labels to tap, in navigation order
      */
-    private void navigateToScreen(String screenName) {
-        log.info("Navigating to screen: '{}'", screenName);
-        if (ConfigReader.isAndroid()) {
-            try {
-                // UiScrollable scrolls the list AND returns the element — all in one call
-                By uiScrollable = AppiumBy.androidUIAutomator(
-                        "new UiScrollable(new UiSelector().scrollable(true))" +
-                        ".scrollIntoView(new UiSelector().text(\"" + screenName + "\"))");
-                DriverManager.getDriver().findElement(uiScrollable).click();
-            } catch (Exception e) {
-                log.warn("UiScrollable failed for '{}', trying XPath direct click", screenName);
-                DriverManager.getDriver()
-                        .findElement(By.xpath("//*[@text='" + screenName + "']"))
-                        .click();
-            }
-        } else {
-            // iOS: scroll through the table to find the named cell
-            try {
-                DriverManager.getDriver()
-                        .findElement(By.xpath(
-                                "//XCUIElementTypeCell[.//XCUIElementTypeStaticText[@name='" + screenName + "']]"))
-                        .click();
-            } catch (Exception e) {
-                log.warn("Could not navigate to '{}' on iOS: {}", screenName, e.getMessage());
+    private void navigateToScreen(String... screenPath) {
+        for (String screenName : screenPath) {
+            log.info("Navigating to screen: '{}'", screenName);
+            if (ConfigReader.isAndroid()) {
+                try {
+                    // UiScrollable scrolls the list AND returns the element — all in one call
+                    By uiScrollable = AppiumBy.androidUIAutomator(
+                            "new UiScrollable(new UiSelector().scrollable(true))" +
+                            ".scrollIntoView(new UiSelector().text(\"" + screenName + "\"))");
+                    DriverManager.getDriver().findElement(uiScrollable).click();
+                } catch (Exception e) {
+                    log.warn("UiScrollable failed for '{}', trying XPath direct click", screenName);
+                    DriverManager.getDriver()
+                            .findElement(By.xpath("//*[@text='" + screenName + "']"))
+                            .click();
+                }
+            } else {
+                // iOS: scroll through the table to find the named cell
+                try {
+                    DriverManager.getDriver()
+                            .findElement(By.xpath(
+                                    "//XCUIElementTypeCell[.//XCUIElementTypeStaticText[@name='" + screenName + "']]"))
+                            .click();
+                } catch (Exception e) {
+                    log.warn("Could not navigate to '{}' on iOS: {}", screenName, e.getMessage());
+                }
             }
         }
     }

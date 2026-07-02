@@ -1,91 +1,51 @@
 package com.appium.framework.pages.controls;
 
+import com.appium.framework.driver.DriverManager;
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.GestureUtils;
 import com.appium.framework.utils.MobileGestureUtils;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
- * Gesture interactions for the gesture demo screen.
- *
- * <p>Covers two approaches side-by-side:
+ * Gesture interactions. No dedicated "Gestures" demo screen exists anywhere
+ * in ApiDemos, so only what has a real, verifiable target is covered here:
  * <ul>
- *   <li><b>W3C Actions</b> via {@link GestureUtils} — cross-platform, fine-grained control</li>
- *   <li><b>mobile: commands</b> via {@link MobileGestureUtils} — native engine delegation,
- *       simpler API, better for flings and iOS scrolls</li>
+ *   <li>Drag and drop, on the real "Views &gt; Drag and Drop" screen
+ *       ({@code drag_dot_1}/{@code drag_dot_2}, result label {@code drag_result_text}
+ *       which literally reads "Dropped!" after a successful drop)</li>
+ *   <li>Generic full-screen swipes/scrolls/fling, which don't target any specific
+ *       element — verified by confirming the app is still responsive afterward,
+ *       not a fictional per-gesture result label</li>
  * </ul>
- * </p>
+ * Tap, long-press, double-tap, and pinch-zoom have no real target in this app
+ * and are intentionally not covered.
  */
 public class GestureControlPage extends BasePage {
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/gesture_target")
-    @iOSXCUITFindBy(accessibility = "gestureTarget")
-    private WebElement gestureTarget;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/draggable_item")
+    @AndroidFindBy(id = "io.appium.android.apis:id/drag_dot_1")
     @iOSXCUITFindBy(accessibility = "draggableItem")
     private WebElement draggableItem;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/drop_zone")
+    @AndroidFindBy(id = "io.appium.android.apis:id/drag_dot_2")
     @iOSXCUITFindBy(accessibility = "dropZone")
     private WebElement dropZone;
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/zoomable_image")
-    @iOSXCUITFindBy(accessibility = "zoomableImage")
-    private WebElement zoomableImage;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/gesture_result")
+    @AndroidFindBy(id = "io.appium.android.apis:id/drag_result_text")
     @iOSXCUITFindBy(accessibility = "gestureResult")
     private WebElement gestureResult;
 
-    // ── Actions ───────────────────────────────────────────────────────────────
-
-    public void performTap() {
-        log.info("Performing tap gesture");
-        GestureUtils.tap(gestureTarget);
-    }
-
-    public void performLongPress() {
-        log.info("Performing long press gesture");
-        GestureUtils.longPress(gestureTarget);
-    }
-
-    public void performDoubleTap() {
-        log.info("Performing double tap gesture");
-        GestureUtils.doubleTap(gestureTarget);
-    }
+    // ── W3C Actions gestures ─────────────────────────────────────────────────
 
     public void performSwipeUp() {
         log.info("Performing swipe up");
         GestureUtils.swipeUp();
     }
 
-    public void performSwipeDown() {
-        log.info("Performing swipe down");
-        GestureUtils.swipeDown();
-    }
-
     public void performSwipeLeft() {
         log.info("Performing swipe left");
         GestureUtils.swipeLeft();
-    }
-
-    public void performSwipeRight() {
-        log.info("Performing swipe right");
-        GestureUtils.swipeRight();
-    }
-
-    public void performPinchZoomIn() {
-        log.info("Performing pinch zoom in");
-        GestureUtils.pinchToZoomIn(zoomableImage);
-    }
-
-    public void performPinchZoomOut() {
-        log.info("Performing pinch zoom out");
-        GestureUtils.pinchToZoomOut(zoomableImage);
     }
 
     public void performDragAndDrop() {
@@ -97,8 +57,13 @@ public class GestureControlPage extends BasePage {
         return gestureResult.getText();
     }
 
-    public boolean isGestureResultDisplayed() {
-        return isDisplayed(By.id("io.appium.android.apis:id/gesture_result"));
+    /**
+     * Confirms the app is still alive and responsive after a gesture that has
+     * no dedicated result element — full-screen swipes/scrolls/flings don't
+     * target any specific widget.
+     */
+    public boolean isAppResponsive() {
+        return !DriverManager.getDriver().getPageSource().isEmpty();
     }
 
     // ── mobile: gesture commands ───────────────────────────────────────────────
@@ -113,48 +78,12 @@ public class GestureControlPage extends BasePage {
     }
 
     /**
-     * Scrolls up using the platform-native {@code mobile:} command.
-     */
-    public void performMobileScrollUp() {
-        log.info("mobile: scroll up");
-        MobileGestureUtils.scroll("up");
-    }
-
-    /**
-     * Swipes left on the gesture target using the platform-native {@code mobile:} command.
+     * Swipes left using the platform-native {@code mobile:} command.
      * Android: {@code mobile: swipeGesture} | iOS: {@code mobile: swipe}
      */
     public void performMobileSwipeLeft() {
-        log.info("mobile: swipe left on gestureTarget");
-        MobileGestureUtils.swipe(gestureTarget, "left");
-    }
-
-    /**
-     * Swipes right on the gesture target using the platform-native {@code mobile:} command.
-     */
-    public void performMobileSwipeRight() {
-        log.info("mobile: swipe right on gestureTarget");
-        MobileGestureUtils.swipe(gestureTarget, "right");
-    }
-
-    /**
-     * Double taps the gesture target using the platform-native {@code mobile:} command.
-     * Android: {@code mobile: doubleClickGesture} | iOS: {@code mobile: doubleTap}
-     */
-    public void performMobileDoubleTap() {
-        log.info("mobile: doubleTap/doubleClick on gestureTarget");
-        MobileGestureUtils.doubleTap(gestureTarget);
-    }
-
-    /**
-     * Long presses the gesture target using the platform-native {@code mobile:} command.
-     * Android: {@code mobile: longClickGesture} | iOS: {@code mobile: longPress}
-     *
-     * @param durationMs hold duration in milliseconds
-     */
-    public void performMobileLongPress(long durationMs) {
-        log.info("mobile: longPress for {}ms on gestureTarget", durationMs);
-        MobileGestureUtils.longPress(gestureTarget, durationMs);
+        log.info("mobile: swipe left");
+        MobileGestureUtils.swipe(draggableItem, "left");
     }
 
     /**
@@ -171,32 +100,6 @@ public class GestureControlPage extends BasePage {
             log.warn("Fling gesture is Android-only — skipping on iOS");
             return;
         }
-        MobileGestureUtils.flingAndroid(gestureTarget, direction, 7500);
-    }
-
-    /**
-     * Zooms in on the zoomable image using the platform-native {@code mobile:} pinch command.
-     * Android: {@code mobile: pinchOpenGesture} | iOS: {@code mobile: pinch scale>1}
-     */
-    public void performMobilePinchOpen() {
-        log.info("mobile: pinch open (zoom in) on zoomableImage");
-        if (isAndroid()) {
-            MobileGestureUtils.pinchOpenAndroid(zoomableImage, 0.5, 500);
-        } else {
-            MobileGestureUtils.pinchIos(zoomableImage, 2.0, 1.0);
-        }
-    }
-
-    /**
-     * Zooms out on the zoomable image using the platform-native {@code mobile:} pinch command.
-     * Android: {@code mobile: pinchCloseGesture} | iOS: {@code mobile: pinch scale<1}
-     */
-    public void performMobilePinchClose() {
-        log.info("mobile: pinch close (zoom out) on zoomableImage");
-        if (isAndroid()) {
-            MobileGestureUtils.pinchCloseAndroid(zoomableImage, 0.5, 500);
-        } else {
-            MobileGestureUtils.pinchIos(zoomableImage, 0.5, 1.0);
-        }
+        MobileGestureUtils.flingAndroid(draggableItem, direction, 7500);
     }
 }
