@@ -3,6 +3,7 @@ package com.appium.framework.pages.controls;
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.AppUtils;
 import com.appium.framework.utils.WaitUtils;
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.By;
@@ -42,9 +43,21 @@ public class AppLifecyclePage extends BasePage {
     @iOSXCUITFindBy(accessibility = "Text Controls")
     private WebElement textSectionButton;
 
-    /** Resume indicator — visible on the main screen, confirms the app has returned. */
-    private static final By MAIN_SCREEN_INDICATOR =
-            By.xpath("//*[@text='API Demos' or @name='UIKitCatalog']");
+    /**
+     * Resume indicator — visible on the main screen, confirms the app has returned.
+     *
+     * <p>iOS uses an NSPredicate query rather than XPath here deliberately: WDA builds
+     * XPath matches against a cached XML snapshot of the tree, and that snapshot cache
+     * doesn't reliably invalidate across a {@code terminateApp}/{@code activateApp}
+     * cycle within the same WDA session — polling the same XPath repeatedly then keeps
+     * resolving to the same stale (pre-terminate) element reference and never recovers.
+     * Predicate strings query the live accessibility tree directly and aren't affected.</p>
+     */
+    private By mainScreenIndicator() {
+        return isIOS()
+                ? AppiumBy.iOSNsPredicateString("name == 'UIKitCatalog'")
+                : By.xpath("//*[@text='API Demos']");
+    }
 
     // ── App Background / Foreground ───────────────────────────────────────────
 
@@ -99,7 +112,7 @@ public class AppLifecyclePage extends BasePage {
         log.info("Re-launching app");
         AppUtils.activateApp();
         // Wait for the main screen to appear, confirming a successful cold start
-        WaitUtils.waitForVisible(MAIN_SCREEN_INDICATOR, 20);
+        WaitUtils.waitForVisible(mainScreenIndicator(), 20);
     }
 
     // ── State Queries ─────────────────────────────────────────────────────────
@@ -147,10 +160,19 @@ public class AppLifecyclePage extends BasePage {
      * Returns {@code true} if the main screen (home/landing) is currently displayed.
      * Used to verify successful launch or resume after backgrounding.
      *
+     * <p>isDisplayed() checks instantly and races the foreground-restore animation
+     * right after a background/relaunch transition; wait briefly before concluding
+     * the main screen is absent.</p>
+     *
      * @return {@code true} if main screen indicator is visible
      */
     public boolean isMainScreenDisplayed() {
-        return isDisplayed(MAIN_SCREEN_INDICATOR);
+        try {
+            WaitUtils.waitForVisible(mainScreenIndicator(), 5);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -168,6 +190,6 @@ public class AppLifecyclePage extends BasePage {
      */
     public void waitForMainScreen() {
         log.info("Waiting for main screen to appear");
-        WaitUtils.waitForVisible(MAIN_SCREEN_INDICATOR, 30);
+        WaitUtils.waitForVisible(mainScreenIndicator(), 30);
     }
 }

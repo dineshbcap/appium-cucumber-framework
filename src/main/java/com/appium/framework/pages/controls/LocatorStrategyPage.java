@@ -78,8 +78,8 @@ public class LocatorStrategyPage extends BasePage {
      * PageFactory evaluates the correct annotation at runtime based on the driver type.
      * This is the cleanest approach for multi-platform pages.
      */
-    @AndroidFindBy(accessibility = "Text")           // maps to content-desc on Android
-    @iOSXCUITFindBy(accessibility = "Text Controls") // maps to accessibilityLabel on iOS
+    @AndroidFindBy(accessibility = "Text")         // maps to content-desc on Android
+    @iOSXCUITFindBy(accessibility = "Text Fields") // real UIKitCatalog root cell
     private WebElement textNavItem;
 
     /**

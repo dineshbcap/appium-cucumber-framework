@@ -1,4 +1,7 @@
-@switch @smoke
+@switch @smoke @androidOnly
+# UIKitCatalog's Switches screen has exactly 1 unnamed switch, vs. the 3
+# individually-named switches and count of 9 this feature requires —
+# Android-only by app content.
 Feature: Switch / Toggle Controls
   As a mobile user
   I want to interact with switch and toggle controls

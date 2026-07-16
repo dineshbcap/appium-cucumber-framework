@@ -1,24 +1,29 @@
 package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
+import com.appium.framework.utils.KeyboardUtils;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.WebElement;
 
 /**
- * Page object for ApiDemos' real "Views &gt; TextFields" screen. The first field
- * ({@code edit}) is a plain text field with hint text; the second ({@code edit1})
- * is a real password-masked field. This screen has no submit button or result
- * label — those don't exist here.
+ * Page object for ApiDemos' real "Views &gt; TextFields" screen (Android) and
+ * UIKitCatalog's real "Text Fields" screen (iOS). The first field is a plain
+ * text field with placeholder text; the second is a real password-masked
+ * field. Neither screen has a submit button or result label.
+ *
+ * <p>Neither of iOS's two text fields carries an accessibility id, so they're
+ * matched positionally: the plain field is the first {@code XCUIElementTypeTextField}
+ * in document order (a second, unrelated search-style field appears later on screen).</p>
  */
 public class TextInputControlPage extends BasePage {
 
     @AndroidFindBy(id = "io.appium.android.apis:id/edit")
-    @iOSXCUITFindBy(accessibility = "textField")
+    @iOSXCUITFindBy(xpath = "(//XCUIElementTypeTextField)[1]")
     private WebElement textField;
 
     @AndroidFindBy(id = "io.appium.android.apis:id/edit1")
-    @iOSXCUITFindBy(accessibility = "passwordField")
+    @iOSXCUITFindBy(className = "XCUIElementTypeSecureTextField")
     private WebElement passwordField;
 
     // ── Actions ───────────────────────────────────────────────────────────────
@@ -57,13 +62,25 @@ public class TextInputControlPage extends BasePage {
 
     /**
      * Returns {@code true} if the field is showing its placeholder hint rather
-     * than user-entered text — UiAutomator2 reports the hint via getText() when empty.
+     * than user-entered text — both UiAutomator2 and XCUITest report the
+     * placeholder via getText() when the field is empty, but the literal
+     * placeholder string differs per app.
      */
     public boolean isTextFieldEmpty() {
-        return "hint text".equals(textField.getText());
+        String placeholder = isIOS() ? "Placeholder text" : "hint text";
+        return placeholder.equals(textField.getText());
     }
 
+    /**
+     * Returns {@code true} if the password field currently has focus.
+     * On iOS, WDA doesn't populate a reliable {@code focused} attribute for
+     * text fields, so keyboard visibility is used as a proxy — valid here
+     * since this page only ever focuses one field at a time.
+     */
     public boolean isPasswordFieldFocused() {
+        if (isIOS()) {
+            return KeyboardUtils.isKeyboardShown();
+        }
         return Boolean.parseBoolean(passwordField.getAttribute("focused"));
     }
 }

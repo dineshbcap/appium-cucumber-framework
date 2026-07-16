@@ -32,7 +32,16 @@ public class AppLifecycleStepDefs {
         if (!AppUtils.isAppInForeground()) {
             AppUtils.activateApp();
         }
-        page.waitForMainScreen();
+        // iOS only: skip the UI-level check here. WDA's FBElementCache resolves this
+        // locator to a cached element reference; if a later step in the same scenario
+        // terminates and relaunches the app (see @terminate), WDA keeps handing back
+        // that same now-dead cache entry instead of resolving the freshly-launched
+        // element, and every isDisplayed check on it 404s as "stale element reference"
+        // for the rest of the session. The app-state check above is a sufficient
+        // foreground precondition without touching the element cache.
+        if (!ConfigReader.isIOS()) {
+            page.waitForMainScreen();
+        }
     }
 
     // ── When ──────────────────────────────────────────────────────────────────
@@ -109,7 +118,20 @@ public class AppLifecycleStepDefs {
 
     @Then("the app should not be in the foreground")
     public void appShouldNotBeInForeground() {
-        Assertions.assertThat(AppUtils.isAppInForeground())
+        // iOS briefly still reports RUNNING_IN_FOREGROUND right after the background
+        // request returns — the Springboard transition hasn't completed yet. Poll
+        // briefly rather than asserting on a single instant read.
+        boolean stillForeground = AppUtils.isAppInForeground();
+        for (int i = 0; i < 5 && stillForeground; i++) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+            stillForeground = AppUtils.isAppInForeground();
+        }
+        Assertions.assertThat(stillForeground)
                 .as("App should NOT be in foreground")
                 .isFalse();
     }

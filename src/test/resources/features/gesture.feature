@@ -17,7 +17,9 @@ Feature: Gesture Controls
     When the user swipes left on the screen
     Then the app should remain responsive
 
-  @dragDrop
+  # UIKitCatalog has no screen with a "Dropped" result label — that content
+  # only exists in Appium's separate TestApp fixture. Android-only for now.
+  @dragDrop @androidOnly
   Scenario: Drag and drop gesture
     When the user drags the item to the drop zone
     Then the gesture result should contain "Dropped"

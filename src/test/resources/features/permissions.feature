@@ -41,20 +41,23 @@ Feature: Runtime Permission Handling
     Then the app should not have access to location features
 
   # ── iOS Permissions ────────────────────────────────────────────────────────────
+  # UIKitCatalog has no screen that requests a real system permission
+  # (camera/location/photos/etc.) — nothing here triggers an actual iOS
+  # permission alert. Android-only until an iOS fixture screen exists.
 
-  @iosOnly @smoke @allowPermission
+  @iosOnly @smoke @allowPermission @androidOnly
   Scenario: Allow iOS system permission alert
     Given an iOS permission alert is displayed
     When the user allows the iOS permission
     Then the permission alert should be dismissed
 
-  @iosOnly @denyPermission
+  @iosOnly @denyPermission @androidOnly
   Scenario: Deny iOS system permission alert
     Given an iOS permission alert is displayed
     When the user denies the iOS permission
     Then the permission alert should be dismissed
 
-  @iosOnly @locationPermission
+  @iosOnly @locationPermission @androidOnly
   Scenario: Allow iOS location permission - While Using App
     Given an iOS location permission alert is displayed
     When the user selects "While Using App" for the location permission

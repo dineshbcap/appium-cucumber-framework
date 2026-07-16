@@ -19,8 +19,10 @@ Feature: Deep Linking
     Then the app should be running in the foreground deeplink
 
   # ── iOS Deep Links ─────────────────────────────────────────────────────────────
+  # UIKitCatalog's Info.plist registers no CFBundleURLTypes — "uikit://" is
+  # not a real, working URL scheme for this app. Android-only for now.
 
-  @iosOnly @deepLink
+  @iosOnly @deepLink @androidOnly
   Scenario: Open iOS app via URL scheme
     # URL scheme must be registered in the app's Info.plist
     When the user opens the iOS URL "uikit://main"

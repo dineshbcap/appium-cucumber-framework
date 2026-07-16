@@ -1,4 +1,7 @@
-@dropdown @smoke
+@dropdown @smoke @androidOnly
+# UIKitCatalog's only picker (Picker View) is 3 numeric RGB wheels (0-255),
+# not a single-column text picker — none of this feature's text options
+# ("red", "Mars", etc.) exist on iOS here. Android-only by app content.
 Feature: Dropdown / Spinner Controls
   As a mobile user
   I want to interact with dropdowns and spinners

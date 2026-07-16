@@ -5,6 +5,7 @@ import com.appium.framework.utils.KeyboardUtils;
 import io.appium.java_client.android.nativekey.AndroidKey;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -33,9 +34,13 @@ public class KeyboardPage extends BasePage {
 
     // ── Locators ──────────────────────────────────────────────────────────────
 
-    /** Standard single-line text input field that triggers the keyboard on focus. */
+    /**
+     * Standard single-line text input field that triggers the keyboard on focus.
+     * On iOS this is the first (unnamed) {@code XCUIElementTypeTextField} on the
+     * real "Text Fields" screen — matched positionally, same as TextInputControlPage.
+     */
     @AndroidFindBy(id = "io.appium.android.apis:id/edit")
-    @iOSXCUITFindBy(accessibility = "textField")
+    @iOSXCUITFindBy(xpath = "(//XCUIElementTypeTextField)[1]")
     private WebElement textField;
 
     // ── Text Entry ────────────────────────────────────────────────────────────
@@ -122,12 +127,19 @@ public class KeyboardPage extends BasePage {
     }
 
     /**
-     * Presses the Backspace key once on Android.
-     * Deletes the last character in the focused text field.
+     * Presses Backspace once, deleting the last character in the focused text field.
+     *
+     * <p>Android: dispatched as a real hardware key event ({@code AndroidKey.DEL}).
+     * iOS has no hardware-key equivalent Appium can dispatch, but {@code Keys.BACK_SPACE}
+     * sent to the focused field is delivered as a real keyboard backspace by WDA.</p>
      */
     public void pressBackspaceKey() {
         log.info("Pressing Backspace key");
-        KeyboardUtils.pressBackspace();
+        if (isIOS()) {
+            textField.sendKeys(Keys.BACK_SPACE);
+        } else {
+            KeyboardUtils.pressBackspace();
+        }
     }
 
     /**

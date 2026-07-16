@@ -27,9 +27,13 @@ public class ClipboardPage extends BasePage {
     @iOSXCUITFindBy(accessibility = "clipboardContent")
     private WebElement clipTextLabel;
 
-    /** Real EditText on the "Views &gt; TextFields" screen — used to test pasting. */
+    /**
+     * Real EditText on the "Views &gt; TextFields" screen (Android) / the first
+     * unnamed {@code XCUIElementTypeTextField} on "Text Fields" (iOS) — used to
+     * test pasting.
+     */
     @AndroidFindBy(id = "io.appium.android.apis:id/edit")
-    @iOSXCUITFindBy(accessibility = "textField")
+    @iOSXCUITFindBy(xpath = "(//XCUIElementTypeTextField)[1]")
     private WebElement pasteTargetField;
 
     // ── Copy Actions ──────────────────────────────────────────────────────────
@@ -77,7 +81,7 @@ public class ClipboardPage extends BasePage {
         log.info("Pasting into text field");
         pasteTargetField.clear();
         pasteTargetField.click();
-        KeyboardUtils.pasteText();
+        KeyboardUtils.pasteText(pasteTargetField);
     }
 
     /**

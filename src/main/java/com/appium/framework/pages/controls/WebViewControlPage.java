@@ -28,7 +28,7 @@ public class WebViewControlPage extends BasePage {
 
     public void switchToWebView() {
         log.info("Switching to WebView context");
-        Set<String> contexts = contextDriver().getContextHandles();
+        Set<String> contexts = getContextsWithRetry();
         log.debug("Available contexts: {}", contexts);
         contexts.stream()
                 .filter(c -> c.contains(WEBVIEW_KEY))
@@ -37,6 +37,26 @@ public class WebViewControlPage extends BasePage {
                         ctx -> contextDriver().context(ctx),
                         () -> { throw new RuntimeException("No WebView context found"); }
                 );
+    }
+
+    /**
+     * Polls {@code getContextHandles()} for a WEBVIEW context to register,
+     * retrying briefly — a WKWebView's JS environment initializes asynchronously
+     * after the native page containing it becomes visible, so an immediate check
+     * right after navigation can race ahead of it and see only NATIVE_APP.
+     */
+    private Set<String> getContextsWithRetry() {
+        Set<String> contexts = contextDriver().getContextHandles();
+        for (int i = 0; i < 5 && contexts.stream().noneMatch(c -> c.contains(WEBVIEW_KEY)); i++) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+            contexts = contextDriver().getContextHandles();
+        }
+        return contexts;
     }
 
     public void switchToNativeApp() {
@@ -49,7 +69,7 @@ public class WebViewControlPage extends BasePage {
     }
 
     public Set<String> getAllContexts() {
-        return contextDriver().getContextHandles();
+        return getContextsWithRetry();
     }
 
     // ── WebView interactions ──────────────────────────────────────────────────

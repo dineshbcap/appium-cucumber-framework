@@ -1,4 +1,7 @@
-@checkbox @smoke
+@checkbox @smoke @androidOnly
+# iOS/UIKit has no native checkbox control, and UIKitCatalog exposes no
+# analog with matching cardinality (its Switches screen has exactly 1
+# element vs. the 3 this feature requires) — Android-only by platform design.
 Feature: Checkbox Controls
   As a mobile user
   I want to interact with checkboxes

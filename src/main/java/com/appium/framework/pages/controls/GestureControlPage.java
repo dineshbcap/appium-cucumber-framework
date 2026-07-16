@@ -6,6 +6,7 @@ import com.appium.framework.utils.GestureUtils;
 import com.appium.framework.utils.MobileGestureUtils;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.iOSXCUITFindBy;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -80,10 +81,19 @@ public class GestureControlPage extends BasePage {
     /**
      * Swipes left using the platform-native {@code mobile:} command.
      * Android: {@code mobile: swipeGesture} | iOS: {@code mobile: swipe}
+     *
+     * <p>{@code draggableItem} only exists on ApiDemos' Drag and Drop screen —
+     * on iOS this swipes on the root table instead, since no drag/drop screen
+     * exists there and the scenario only checks the app stays responsive.</p>
      */
     public void performMobileSwipeLeft() {
         log.info("mobile: swipe left");
-        MobileGestureUtils.swipe(draggableItem, "left");
+        if (isIOS()) {
+            WebElement table = driver().findElement(By.className("XCUIElementTypeTable"));
+            MobileGestureUtils.swipe(table, "left");
+        } else {
+            MobileGestureUtils.swipe(draggableItem, "left");
+        }
     }
 
     /**

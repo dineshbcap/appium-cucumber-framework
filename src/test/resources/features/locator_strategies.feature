@@ -9,7 +9,8 @@ Feature: Appium Locator Strategies
 
   # ── By.accessibilityId — Most Portable ────────────────────────────────────────
 
-  @smoke @accessibilityId
+  # "Text" doesn't exist as literal element content in UIKitCatalog. Android-only.
+  @smoke @accessibilityId @androidOnly
   Scenario: Find element by accessibility ID (most portable strategy)
     # Maps to content-desc on Android, accessibilityLabel on iOS
     # Best choice for cross-platform elements
@@ -18,7 +19,8 @@ Feature: Appium Locator Strategies
 
   # ── By.id — Fastest on Android ────────────────────────────────────────────────
 
-  @smoke @byId
+  # "android:id/list" is an Android resource-id format — has no iOS equivalent.
+  @smoke @byId @androidOnly
   Scenario: Find element by resource ID on Android
     # Uses the Android resource-id (e.g., "com.package:id/element_id")
     # Fastest locator strategy on Android when IDs are stable
@@ -27,7 +29,8 @@ Feature: Appium Locator Strategies
 
   # ── By.className ──────────────────────────────────────────────────────────────
 
-  @className
+  # "android.widget.TextView" is an Android-only class name literal. Android-only.
+  @className @androidOnly
   Scenario: Find all elements of a class type
     # Returns all TextViews on Android or all Labels on iOS
     # Useful for counting or iterating over collections
@@ -36,14 +39,17 @@ Feature: Appium Locator Strategies
 
   # ── By.xpath — Most Flexible ───────────────────────────────────────────────────
 
-  @smoke @xpath
+  # @text is an Android-only XML attribute; doesn't exist on iOS elements. Android-only.
+  @smoke @xpath @androidOnly
   Scenario: Find element by XPath
     # XPath is the most flexible but slowest strategy
     # Use short, stable XPaths — avoid deep hierarchical paths
     When the user finds element by XPath "//*[@text='Text']"
     Then the element should be found and visible
 
-  @xpath @crossPlatform
+  # XPath itself is cross-platform-safe here, but no iOS element is literally
+  # named "Text" in UIKitCatalog, so the content assumption doesn't hold. Android-only.
+  @xpath @crossPlatform @androidOnly
   Scenario: Find element by text using cross-platform XPath
     # @text works on Android, @label/@name works on iOS
     # Use OR to create a single XPath that works on both
@@ -74,7 +80,7 @@ Feature: Appium Locator Strategies
   @iosOnly @predicateString
   Scenario: Find element using NSPredicate string
     # NSPredicate is faster than XPath and supports compound queries
-    When the user finds iOS element by predicate string "name == 'Text Controls'"
+    When the user finds iOS element by predicate string "name == 'Text Fields'"
     Then the element should be found and visible
 
   @iosOnly @predicateString
@@ -93,8 +99,10 @@ Feature: Appium Locator Strategies
   @iosOnly @classChain
   Scenario: Find element using iOS Class Chain
     # Class Chain is faster than XPath and more readable than Predicate String
-    # for hierarchical queries
-    When the user finds iOS element by class chain "**/XCUIElementTypeCell[`name == 'Text Controls'`]"
+    # for hierarchical queries.
+    # The cell itself carries no "name" — only its child StaticText label does —
+    # so the chain targets that leaf rather than the XCUIElementTypeCell wrapper.
+    When the user finds iOS element by class chain "**/XCUIElementTypeStaticText[`name == 'Text Fields'`]"
     Then the element should be found and visible
 
   # ── PageFactory (Advanced) ────────────────────────────────────────────────────
@@ -110,7 +118,8 @@ Feature: Appium Locator Strategies
   # relative to a known anchor element on screen. Supported by Appium 2.x
   # via the W3C WebDriver protocol's "relative locator" endpoint.
 
-  @relativeLocator @advanced
+  # "Text"/"Views" are ApiDemos-specific anchor labels with no iOS equivalent. Android-only.
+  @relativeLocator @advanced @androidOnly
   Scenario: Find element below an anchor using RelativeLocator
     # RelativeLocator.with(By.className(...)).below(anchor)
     # Finds the first matching element whose top edge is below the anchor's bottom edge.
@@ -118,14 +127,14 @@ Feature: Appium Locator Strategies
     When the user finds element below the anchor with text "Text"
     Then the element should be found and visible
 
-  @relativeLocator @advanced
+  @relativeLocator @advanced @androidOnly
   Scenario: Find element near an anchor using RelativeLocator with distance
     # RelativeLocator.with(By.className(...)).near(anchor, maxDistancePixels)
     # Useful for finding unlabeled elements (icons, buttons) adjacent to a known label.
     When the user finds element near the anchor with text "Text" within 200 pixels
     Then the element should be found and visible
 
-  @relativeLocator @advanced
+  @relativeLocator @advanced @androidOnly
   Scenario: Chain multiple relative conditions on a single locator
     # RelativeLocator supports chaining: .below(topAnchor).above(bottomAnchor)
     # Finds an element positioned between two known anchors — useful for dense lists.

@@ -1,4 +1,7 @@
-@radioButton @smoke
+@radioButton @smoke @androidOnly
+# iOS/UIKit has no native radio button control. Segmented Control is the
+# closest analog but is a single multi-segment widget (3-5 segments), not
+# N independent selectable buttons — Android-only by platform design.
 Feature: Radio Button Controls
   As a mobile user
   I want to interact with radio buttons

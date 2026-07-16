@@ -33,7 +33,11 @@ public class CommonStepDefs {
 
     @Given("the text input controls screen is displayed")
     public void navigateToTextInputScreen() {
-        navigateToScreen("Views", "TextFields");
+        if (ConfigReader.isIOS()) {
+            navigateToScreen("Text Fields");
+        } else {
+            navigateToScreen("Views", "TextFields");
+        }
     }
 
     @Given("the checkbox controls screen is displayed")
@@ -53,19 +57,31 @@ public class CommonStepDefs {
 
     @Given("the slider controls screen is displayed")
     public void navigateToSliderScreen() {
-        navigateToScreen("Views", "Seek Bar");
+        if (ConfigReader.isIOS()) {
+            navigateToScreen("Sliders");
+        } else {
+            navigateToScreen("Views", "Seek Bar");
+        }
     }
 
     @Given("the scroll controls screen is displayed")
     public void navigateToScrollScreen() {
-        // The "Views" submenu (~40 items) is a real, naturally scrollable list —
-        // no dedicated "Scroll View" screen with top/bottom markers exists in this app.
-        navigateToScreen("Views");
+        // Android: the "Views" submenu (~40 items) is a real, naturally scrollable
+        // list — no dedicated "Scroll View" screen with top/bottom markers exists.
+        // iOS: UIKitCatalog's root screen (18 items) serves the same purpose and
+        // is already displayed on launch — no navigation needed.
+        if (!ConfigReader.isIOS()) {
+            navigateToScreen("Views");
+        }
     }
 
     @Given("the alert controls screen is displayed")
     public void navigateToAlertScreen() {
-        navigateToScreen("App", "Alert Dialogs");
+        if (ConfigReader.isIOS()) {
+            navigateToScreen("Alert Views");
+        } else {
+            navigateToScreen("App", "Alert Dialogs");
+        }
     }
 
     @Given("the date picker controls screen is displayed")
@@ -75,9 +91,13 @@ public class CommonStepDefs {
 
     @Given("the gesture controls screen is displayed")
     public void navigateToGestureScreen() {
-        // No dedicated "Gestures" screen exists in this app — "Drag and Drop" is
-        // the only gesture demo with a real, observable result.
-        navigateToScreen("Views", "Drag and Drop");
+        // Android: "Drag and Drop" is the only gesture demo with a real,
+        // observable result (used by the @dragDrop scenario, @androidOnly).
+        // iOS: the swipe/scroll scenarios that remain are content-agnostic —
+        // UIKitCatalog's root screen works fine as the swipe surface.
+        if (!ConfigReader.isIOS()) {
+            navigateToScreen("Views", "Drag and Drop");
+        }
     }
 
     @Given("the switch controls screen is displayed")
@@ -87,13 +107,17 @@ public class CommonStepDefs {
 
     @Given("the list controls screen is displayed")
     public void navigateToListScreen() {
-        // ApiDemos opens on a list by default — no navigation needed
-        log.info("List screen is already displayed (ApiDemos home)");
+        // Both apps open on a list-like root screen by default — no navigation needed
+        log.info("List screen is already displayed (app home)");
     }
 
     @Given("the WebView controls screen is displayed")
     public void navigateToWebViewScreen() {
-        navigateToScreen("Views", "WebView");
+        if (ConfigReader.isIOS()) {
+            navigateToScreen("Web View");
+        } else {
+            navigateToScreen("Views", "WebView");
+        }
     }
 
     // ── New Advanced Screens ───────────────────────────────────────────────────
@@ -116,7 +140,11 @@ public class CommonStepDefs {
      */
     @Given("the keyboard screen is displayed")
     public void navigateToKeyboardScreen() {
-        navigateToScreen("Views", "TextFields");
+        if (ConfigReader.isIOS()) {
+            navigateToScreen("Text Fields");
+        } else {
+            navigateToScreen("Views", "TextFields");
+        }
     }
 
     /**

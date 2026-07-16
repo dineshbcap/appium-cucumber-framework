@@ -1,4 +1,7 @@
-@button @smoke
+@button @smoke @androidOnly
+# UIKitCatalog's Buttons screen has buttons named "Button"/"add"/"More Info"/
+# "X Button"/"Person" — no "Normal"/"Small" buttons and no ON/OFF toggle-state
+# button exist. Android-only by app content.
 Feature: Button Controls
   As a mobile user
   I want to interact with various button types

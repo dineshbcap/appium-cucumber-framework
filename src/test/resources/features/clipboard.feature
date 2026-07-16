@@ -13,7 +13,8 @@ Feature: Clipboard Operations
 
   # ── Copy via UI ────────────────────────────────────────────────────────────────
 
-  @smoke @copyViaUi
+  # UIKitCatalog has no in-app Copy button. Android-only.
+  @smoke @copyViaUi @androidOnly
   Scenario: Copy content using the app's Copy button
     Given the clipboard screen is displayed
     When the user taps the copy button

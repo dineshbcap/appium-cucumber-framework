@@ -9,19 +9,21 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
 
 /**
- * Page object for ApiDemos' real "Views &gt; Seek Bar" screen: a single SeekBar
- * ({@code seek}) with a "progress" label whose text looks like
- * "77 from touch=true" — the numeric progress is the leading token, there is
- * no separate numeric-only attribute or second seek bar on this screen.
+ * Page object for ApiDemos' real "Views &gt; Seek Bar" screen (Android) and
+ * UIKitCatalog's real "Sliders" screen (iOS). Android has a separate SeekBar
+ * + "progress" label whose text looks like "77 from touch=true". iOS has a
+ * single unnamed {@code UISlider} whose own {@code value} attribute already
+ * reports its position as a percentage string (e.g. "42%") — no separate
+ * label element exists there.
  */
 public class SliderControlPage extends BasePage {
 
     @AndroidFindBy(id = "io.appium.android.apis:id/seek")
-    @iOSXCUITFindBy(accessibility = "slider1")
+    @iOSXCUITFindBy(className = "XCUIElementTypeSlider")
     private WebElement seekBar;
 
     @AndroidFindBy(id = "io.appium.android.apis:id/progress")
-    @iOSXCUITFindBy(accessibility = "sliderValue")
+    @iOSXCUITFindBy(className = "XCUIElementTypeSlider")
     private WebElement progressLabel;
 
     // ── Actions ───────────────────────────────────────────────────────────────
@@ -46,11 +48,16 @@ public class SliderControlPage extends BasePage {
     }
 
     /**
-     * Returns the numeric progress value parsed from the "NN from touch=..." label.
+     * Returns the numeric progress value: parsed from Android's "NN from touch=..."
+     * label, or from iOS's own slider {@code value} attribute (e.g. "42%").
      * Coordinate-based dragging lands exactly on 0/50/100 but can be off by a
      * couple of percent at other targets — callers should compare with tolerance.
      */
     public int getProgressValue() {
+        if (isIOS()) {
+            String value = seekBar.getAttribute("value").trim(); // e.g. "42%"
+            return Integer.parseInt(value.replace("%", ""));
+        }
         String text = progressLabel.getText().trim();
         return Integer.parseInt(text.split("\\s+")[0]);
     }
@@ -63,15 +70,26 @@ public class SliderControlPage extends BasePage {
 
         Point location = seekBar.getLocation();
         Dimension size = seekBar.getSize();
-
-        int startX = location.getX() + size.width / 2;
+        int y = location.getY() + size.height / 2;
         int targetX = location.getX() + (int) (size.width * percent / 100.0);
-        // A zero-distance drag (target == center, i.e. percent == 50) registers as a tap,
-        // not a slide, and never fires the SeekBar's progress-changed listener.
+
+        int startX;
+        if (isIOS()) {
+            // UISlider only responds to a drag that starts ON the thumb — unlike
+            // Android's SeekBar, tapping/dragging from the track center does
+            // nothing if the thumb isn't already there. Start from the thumb's
+            // actual current position, read from the slider's own value attribute.
+            double currentPercent = Double.parseDouble(
+                    seekBar.getAttribute("value").replace("%", "").trim()) / 100.0;
+            startX = location.getX() + (int) (size.width * currentPercent);
+        } else {
+            startX = location.getX() + size.width / 2;
+        }
+        // A zero-distance drag (start == target) registers as a tap, not a
+        // slide, and never fires the progress-changed listener.
         if (startX == targetX) {
             startX += 20;
         }
-        int y = location.getY() + size.height / 2;
 
         GestureUtils.swipe(startX, y, targetX, y, 600);
     }

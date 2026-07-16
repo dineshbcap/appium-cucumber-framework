@@ -1,4 +1,7 @@
-@list @smoke
+@list @smoke @androidOnly
+# Every scenario here asserts specific ApiDemos item text ("Accessibility",
+# "Animation", "App", ...) that doesn't exist in UIKitCatalog's root list.
+# The mechanism would transfer, but the fixture content doesn't — Android-only.
 Feature: List and RecyclerView Controls
   As a mobile user
   I want to interact with lists and collections

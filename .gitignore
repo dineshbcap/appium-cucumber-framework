@@ -32,6 +32,7 @@ logs/
 test-output/
 allure-results/
 allure-report/
+.allure/
 
 # Appium screenshots (if captured during tests)
 screenshots/

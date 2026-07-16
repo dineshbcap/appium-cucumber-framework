@@ -36,7 +36,8 @@ import io.cucumber.testng.CucumberOptions;
         plugin     = {
                 "pretty",
                 "html:target/cucumber-reports/single-run.html",
-                "json:target/cucumber-reports/single-run.json"
+                "json:target/cucumber-reports/single-run.json",
+                "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
         },
         tags       = "@debug",
         monochrome = true

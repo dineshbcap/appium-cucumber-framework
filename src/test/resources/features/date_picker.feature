@@ -1,4 +1,7 @@
-@datePicker @smoke
+@datePicker @smoke @androidOnly
+# iOS's real date picker here is an inline compact control (tap to expand,
+# no modal dialog, no OK/Cancel, no paged month grid) — a fundamentally
+# different interaction model, not just different locators. Android-only.
 Feature: Date Picker and Time Picker Controls
   As a mobile user
   I want to interact with date and time pickers

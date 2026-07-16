@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
 
 import java.util.Map;
 
@@ -246,15 +247,22 @@ public class KeyboardUtils {
     }
 
     /**
-     * Pastes the current clipboard content into the focused field using the
-     * platform-appropriate shortcut.
+     * Pastes the current clipboard content into {@code field} using the
+     * platform-appropriate shortcut. The field must already be focused
+     * (e.g. via a prior {@code click()}) before calling this.
      *
      * <p>Android: uses the Ctrl+V key combination via mobile command — more
      * reliable than tapping the floating "Paste" popup/toolbar, which is
      * transient and not always present in the accessibility tree.
-     * iOS: uses {@code mobile:pasteboard}.</p>
+     * iOS: has no keyboard-shortcut paste. A <em>second, separate</em> tap on
+     * the already-focused field surfaces the system Edit Menu callout with a
+     * "Paste" option — a true double-tap gesture is read as word-select
+     * instead and does not surface it. ({@code mobile:pasteboard} only
+     * sets/reads the pasteboard; it can't paste into a field.)</p>
+     *
+     * @param field the already-focused field to paste into
      */
-    public static void pasteText() {
+    public static void pasteText(WebElement field) {
         log.info("Pasting clipboard content into focused field");
         if (ConfigReader.isAndroid()) {
             try {
@@ -264,7 +272,14 @@ public class KeyboardUtils {
                 log.warn("Ctrl+V paste failed: {}", e.getMessage());
             }
         } else {
-            DriverManager.getDriver().executeScript("mobile:pasteboard", Map.of("content", ""));
+            try {
+                field.click();
+                DriverManager.getDriver()
+                        .findElement(By.xpath("//XCUIElementTypeMenuItem[@name='Paste']"))
+                        .click();
+            } catch (Exception e) {
+                log.warn("Could not paste via iOS Edit Menu: {}", e.getMessage());
+            }
         }
     }
 

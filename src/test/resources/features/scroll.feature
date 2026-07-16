@@ -27,7 +27,8 @@ Feature: Scroll and Swipe Controls
     And  the user scrolls to the top of the list
     Then the top of the list should be visible
 
-  @scrollToText
+  # "WebView3" is ApiDemos-specific text with no iOS equivalent — Android-only.
+  @scrollToText @androidOnly
   Scenario: Scroll to a specific element by text
     When the user scrolls to the element with text "WebView3"
     Then the bottom of the list should be visible

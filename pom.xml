@@ -72,6 +72,13 @@
             <version>${testng.version}</version>
         </dependency>
 
+        <!-- Allure -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <version>2.29.1</version>
+        </dependency>
+
         <!-- Extent Reports -->
         <dependency>
             <groupId>com.aventstack</groupId>
@@ -131,6 +138,12 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.12.0</version>
             </plugin>
 
             <!-- Surefire for parallel execution -->

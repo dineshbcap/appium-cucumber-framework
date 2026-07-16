@@ -55,10 +55,6 @@ public class KeyboardStepDefs {
 
     @When("the user presses the Backspace key")
     public void pressBackspaceKey() {
-        if (!ConfigReader.isAndroid()) {
-            log.info("Skipping Backspace key event on iOS");
-            return;
-        }
         page.pressBackspaceKey();
     }
 
