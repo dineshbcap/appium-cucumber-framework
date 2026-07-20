@@ -2,8 +2,11 @@ package com.appium.framework.healing;
 
 import com.appium.framework.config.ConfigReader;
 import com.appium.framework.driver.DriverManager;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 import com.dinesh.healing.HealingCache;
 import com.dinesh.healing.HealingConfig;
+import com.dinesh.healing.HealingReporter;
 import com.dinesh.healing.LocatorRepository;
 import com.dinesh.healing.Platform;
 import com.dinesh.healing.SelfHealingElementLocator;
@@ -59,6 +62,36 @@ public final class HealingSupport {
     private static final HealingConfig CONFIG = new HealingConfig(HEALING_CONFIG_CLASSPATH_FILE);
 
     private static final HealingCache CACHE = buildCache();
+
+    static {
+        // HealingReporter's listener list is a single process-wide static, so this
+        // registration only needs to happen once per JVM, at class-init time —
+        // not per-thread like the locator itself.
+        HealingReporter.addListener(HealingSupport::mirrorToExtentReport);
+    }
+
+    /**
+     * Mirrors a heal event into the currently active Extent node as a warning, so a
+     * heal is visible directly in the HTML report instead of only in
+     * {@code healing-report.json} / the log. Falls back from the current step to the
+     * current scenario ({@link ExtentCucumberAdapter} tracks both) in case a heal
+     * happens outside step context (e.g. from a hook); does nothing if neither is
+     * active for this thread.
+     *
+     * @param record the heal event reported by {@link SelfHealingElementLocator}
+     */
+    private static void mirrorToExtentReport(HealingReporter.HealingRecord record) {
+        ExtentTest test = ExtentCucumberAdapter.getCurrentStep();
+        if (test == null) {
+            test = ExtentCucumberAdapter.getCurrentScenario();
+        }
+        if (test == null) {
+            return;
+        }
+        test.warning("⚠ Locator healed: " + record.locatorKey() + " "
+                + record.originalLocator() + " → " + record.healedLocator()
+                + " (via " + record.healingStrategy() + ") — update locators_<platform>.properties");
+    }
 
     /**
      * Thread-local self-healing locator, bound to the current thread's Appium driver.
