@@ -238,7 +238,7 @@ public class LocatorStrategyPage extends BasePage {
      * Demonstrates clicking an element located via a dual-platform properties key.
      * The correct strategy/value ({@code locatorStrategy.textNavItem} in
      * locators_android.properties vs. locators_ios.properties) is resolved
-     * automatically by {@link com.appium.framework.locators.LocatorRepository}.
+     * automatically by {@link com.appium.framework.healing.HealingSupport}.
      */
     public void clickTextNavItem() {
         log.info("[Strategy: properties-resolved] Clicking text nav item");

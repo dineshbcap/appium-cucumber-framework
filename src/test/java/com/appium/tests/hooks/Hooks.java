@@ -4,6 +4,7 @@ import com.appium.framework.config.ConfigReader;
 import com.appium.framework.driver.CloudDriverFactory;
 import com.appium.framework.driver.DriverFactory;
 import com.appium.framework.driver.DriverManager;
+import com.appium.framework.healing.HealingSupport;
 import com.appium.framework.utils.RecordingUtils;
 import com.appium.framework.utils.ScreenshotUtils;
 import io.cucumber.java.After;
@@ -126,6 +127,11 @@ public class Hooks {
             // Always quit the driver — even if artifacts fail
             log.info("END: '{}' — Status: {}", scenario.getName(), scenario.getStatus());
             DriverManager.removeDriver();
+
+            // Extra insurance alongside HealingCache's own shutdown-hook persistence —
+            // cheap, and survives an abnormal JVM exit (CI timeout, forced kill) that
+            // would otherwise lose any locators healed during this scenario.
+            HealingSupport.persistCache();
         }
     }
 

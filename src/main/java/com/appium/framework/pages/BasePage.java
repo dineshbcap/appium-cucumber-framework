@@ -2,7 +2,7 @@ package com.appium.framework.pages;
 
 import com.appium.framework.config.ConfigReader;
 import com.appium.framework.driver.DriverManager;
-import com.appium.framework.locators.LocatorRepository;
+import com.appium.framework.healing.HealingSupport;
 import com.appium.framework.utils.GestureUtils;
 import com.appium.framework.utils.WaitUtils;
 import io.appium.java_client.AppiumDriver;
@@ -21,14 +21,16 @@ import java.util.List;
  * Each screen in the app has its own page class that:
  * <ul>
  *   <li>Resolves its element locators by dotted key (e.g. {@code "button.normal"}) via
- *       {@link #locator(String)} / {@link #element(String)}, backed by
- *       {@link LocatorRepository} and the platform-specific
- *       {@code locators_android.properties} / {@code locators_ios.properties} files</li>
+ *       {@link #el(String)} / {@link #element(String)}, backed by the
+ *       {@code com.dinesh.healing} self-healing-locators library
+ *       ({@link HealingSupport}) and {@code locators_android.properties / locators_ios.properties}</li>
  *   <li>Provides action methods ({@code click}, {@code typeText}) with logging</li>
  *   <li>Does NOT contain assertions — assertions belong in step definitions</li>
  * </ul>
  * This makes tests more maintainable: when a locator changes, only the properties
- * file needs updating — not the page class or any test that uses that element.</p>
+ * file needs updating — not the page class or any test that uses that element.
+ * And when the app's UI changes out from under a locator, the self-healing layer
+ * attempts to re-locate the element by its description before failing the step.</p>
  *
  * <p><b>Logger:</b> Each subclass gets its own {@code log} instance because
  * {@code LogManager.getLogger(getClass())} uses the actual subclass type.
@@ -54,33 +56,51 @@ public abstract class BasePage {
         return DriverManager.getDriver();
     }
 
-    // ── Locator Resolution ─────────────────────────────────────────────────────
+    // ── Locator Resolution (self-healing) ──────────────────────────────────────
 
     /**
-     * Resolves a locator key (e.g. {@code "button.normal"}) to a platform-appropriate
-     * {@link By}, reading from {@code locators_android.properties} / {@code locators_ios.properties}
-     * via {@link LocatorRepository}.
+     * Resolves a locator key to its element via the self-healing locator layer.
      *
-     * @param key dotted locator key
-     * @return resolved {@link By} for the current platform
+     * <p>Tries the declared {@code strategy=value} locator from
+     * {@code locators_android.properties / locators_ios.properties} first; if the app's UI has moved on and that
+     * locator no longer matches anything, {@link com.dinesh.healing.SelfHealingElementLocator}
+     * attempts to re-locate the element from its {@code description} before giving up.</p>
+     *
+     * @param key dotted locator key (e.g. {@code "button.normal"})
+     * @return the located (possibly healed) {@link WebElement}
      */
-    protected By locator(String key) {
-        return LocatorRepository.get(key);
+    protected WebElement el(String key) {
+        return HealingSupport.locator().find(key);
     }
 
     /**
-     * Resolves a locator key and waits for the matching element to be visible.
-     * Shorthand for {@code findElement(locator(key))}.
+     * Alias for {@link #el(String)} — resolves a locator key to its element via the
+     * self-healing locator layer. Kept as the primary name used throughout the
+     * existing page classes; {@link #el(String)} is the shorter form.
      *
      * @param key dotted locator key
-     * @return visible {@link WebElement}
+     * @return the located (possibly healed) {@link WebElement}
      */
     protected WebElement element(String key) {
-        return findElement(locator(key));
+        return el(key);
     }
 
     /**
-     * Resolves a locator key and returns all currently matching elements (no wait).
+     * Resolves a locator key to the raw, declared (non-healing) {@link By} for the
+     * current platform. Use this for wait-conditions and other {@code By}-based
+     * helpers below — self-healing applies to single-element {@link #el(String)}
+     * lookups, not raw locator resolution.
+     *
+     * @param key dotted locator key
+     * @return declared {@link By} for the current platform
+     */
+    protected By locator(String key) {
+        return HealingSupport.rawLocator(key);
+    }
+
+    /**
+     * Resolves a locator key and returns all currently matching elements (no wait,
+     * no healing — the self-healing layer only covers single-element lookups).
      * Shorthand for {@code findElements(locator(key))}.
      *
      * @param key dotted locator key
@@ -91,16 +111,16 @@ public abstract class BasePage {
     }
 
     /**
-     * Returns the plain-English description of a locator key (its {@code <key>.description}
-     * entry), or {@code null} if none is defined. Useful in failure logs and for
-     * locator-healing tooling that needs a semantic hint once a {@code strategy=value}
+     * Returns the plain-English description of a locator key from
+     * {@code locators_android.properties / locators_ios.properties}. Useful in failure logs and is also what the
+     * self-healing layer itself uses to re-locate an element once its declared
      * locator stops matching.
      *
      * @param key dotted locator key
-     * @return description text, or {@code null} if not defined for the current platform
+     * @return description text
      */
     protected String describe(String key) {
-        return LocatorRepository.getDescription(key);
+        return HealingSupport.describe(key);
     }
 
     // ── Element Location ───────────────────────────────────────────────────────
@@ -141,13 +161,14 @@ public abstract class BasePage {
     }
 
     /**
-     * Resolves a locator key and clicks the matching element.
-     * Shorthand for {@code click(locator(key))}.
+     * Resolves a locator key (self-healing) and clicks the matching element.
+     * Shorthand for {@code el(key).click()}.
      *
      * @param key dotted locator key
      */
     protected void click(String key) {
-        click(locator(key));
+        log.debug("Click (self-healing): {}", key);
+        el(key).click();
     }
 
     /**
@@ -176,14 +197,16 @@ public abstract class BasePage {
     }
 
     /**
-     * Resolves a locator key and types text into the matching element.
-     * Shorthand for {@code sendKeys(locator(key), text)}.
+     * Resolves a locator key (self-healing) and types text into the matching element.
      *
      * @param key  dotted locator key
      * @param text text to enter
      */
     protected void sendKeys(String key, String text) {
-        sendKeys(locator(key), text);
+        log.debug("Type '{}' into (self-healing): {}", text, key);
+        WebElement el = el(key);
+        el.clear();
+        el.sendKeys(text);
     }
 
     /**
@@ -197,14 +220,14 @@ public abstract class BasePage {
     }
 
     /**
-     * Resolves a locator key and returns the visible text of the matching element.
-     * Shorthand for {@code getText(locator(key))}.
+     * Resolves a locator key (self-healing) and returns the visible text of the
+     * matching element.
      *
      * @param key dotted locator key
      * @return trimmed text content
      */
     protected String getText(String key) {
-        return getText(locator(key));
+        return el(key).getText();
     }
 
     // ── State Checks ───────────────────────────────────────────────────────────
@@ -226,13 +249,20 @@ public abstract class BasePage {
 
     /**
      * Resolves a locator key and returns whether the matching element is displayed.
-     * Shorthand for {@code isDisplayed(locator(key))}.
+     * Shorthand for {@code HealingSupport.locator().isPresent(key)} — a plain presence
+     * check against the declared locator; intentionally does not trigger healing
+     * (matches the self-healing library's own {@code isPresent} semantics: "is X
+     * currently on screen", not "give me X no matter what").
      *
      * @param key dotted locator key
      * @return {@code true} if displayed
      */
     protected boolean isDisplayed(String key) {
-        return isDisplayed(locator(key));
+        try {
+            return HealingSupport.locator().isPresent(key);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -250,14 +280,18 @@ public abstract class BasePage {
     }
 
     /**
-     * Resolves a locator key and returns whether the matching element is enabled.
-     * Shorthand for {@code isEnabled(locator(key))}.
+     * Resolves a locator key (self-healing) and returns whether the matching
+     * element is enabled.
      *
      * @param key dotted locator key
      * @return {@code true} if enabled
      */
     protected boolean isEnabled(String key) {
-        return isEnabled(locator(key));
+        try {
+            return el(key).isEnabled();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -276,14 +310,18 @@ public abstract class BasePage {
     }
 
     /**
-     * Resolves a locator key and returns whether the matching element is selected/checked.
-     * Shorthand for {@code isSelected(locator(key))}.
+     * Resolves a locator key (self-healing) and returns whether the matching
+     * element is selected/checked.
      *
      * @param key dotted locator key
      * @return {@code true} if selected/checked
      */
     protected boolean isSelected(String key) {
-        return isSelected(locator(key));
+        try {
+            return el(key).isSelected();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     // ── Scroll ─────────────────────────────────────────────────────────────────

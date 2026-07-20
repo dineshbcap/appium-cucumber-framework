@@ -1,5 +1,6 @@
 package com.appium.framework.driver;
 
+import com.appium.framework.healing.HealingSupport;
 import io.appium.java_client.AppiumDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,13 +59,20 @@ public class DriverManager {
 
     /**
      * Stores the given driver for the current thread.
-     * Called by {@link DriverFactory} immediately after creating the session.
+     * Called by {@link DriverFactory} (and {@link CloudDriverFactory}) immediately
+     * after creating the session.
+     *
+     * <p>Also initializes this thread's {@link HealingSupport} self-healing locator —
+     * every driver factory goes through this single method, so self-healing locator
+     * resolution is available for the rest of the scenario without each factory
+     * needing to wire it separately.</p>
      *
      * @param driver the initialized {@link AppiumDriver} to store
      */
     public static void setDriver(AppiumDriver driver) {
         log.debug("Setting driver for thread: {}", Thread.currentThread().getName());
         driverThread.set(driver);
+        HealingSupport.init(driver);
     }
 
     /**
@@ -85,6 +93,7 @@ public class DriverManager {
             } finally {
                 // Remove from ThreadLocal regardless of quit success
                 driverThread.remove();
+                HealingSupport.remove();
             }
         }
     }
