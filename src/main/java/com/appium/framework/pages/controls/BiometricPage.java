@@ -3,10 +3,6 @@ package com.appium.framework.pages.controls;
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.BiometricUtils;
 import com.appium.framework.utils.WaitUtils;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 /**
  * Page object demonstrating <b>Biometric Authentication</b> simulation.
@@ -42,32 +38,8 @@ import org.openqa.selenium.WebElement;
 public class BiometricPage extends BasePage {
 
     // ── Locators ──────────────────────────────────────────────────────────────
-
-    /** Button that triggers the biometric authentication prompt. */
-    @AndroidFindBy(accessibility = "Authenticate with Fingerprint")
-    @iOSXCUITFindBy(accessibility = "authenticateButton")
-    private WebElement authenticateButton;
-
-    /** Label shown on the biometric system prompt. */
-    @AndroidFindBy(accessibility = "Confirm fingerprint")
-    @iOSXCUITFindBy(accessibility = "biometricPromptTitle")
-    private WebElement biometricPromptTitle;
-
-    /** Result label displayed after authentication success/failure. */
-    @AndroidFindBy(id = "io.appium.android.apis:id/auth_result")
-    @iOSXCUITFindBy(accessibility = "authResult")
-    private WebElement authResultLabel;
-
-    /** Cancel button on the biometric prompt. */
-    @AndroidFindBy(accessibility = "Cancel")
-    @iOSXCUITFindBy(accessibility = "cancelBiometric")
-    private WebElement cancelButton;
-
-    private static final By AUTH_RESULT_LOCATOR =
-            By.xpath("//*[@resource-id='io.appium.android.apis:id/auth_result'" +
-                     " or @name='authResult']");
-    private static final By AUTHENTICATE_BTN_LOCATOR =
-            By.xpath("//*[@content-desc='Authenticate with Fingerprint' or @name='authenticateButton']");
+    // Resolved from locators_android.properties / locators_ios.properties via
+    // BasePage#locator / #click / #element. See "biometric.*" keys.
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -77,7 +49,7 @@ public class BiometricPage extends BasePage {
      */
     public void triggerBiometricAuthentication() {
         log.info("Triggering biometric authentication prompt");
-        authenticateButton.click();
+        click("biometric.authenticateButton");
         // Small delay to allow the system biometric prompt to appear
         WaitUtils.hardWait(500);
     }
@@ -107,7 +79,7 @@ public class BiometricPage extends BasePage {
     public void cancelAuthentication() {
         log.info("Cancelling biometric prompt");
         try {
-            cancelButton.click();
+            click("biometric.cancelButton");
         } catch (Exception e) {
             // On some platforms Cancel is handled by the hardware Back button
             driver().navigate().back();
@@ -122,8 +94,8 @@ public class BiometricPage extends BasePage {
      * @return result text (e.g., "Authentication Successful", "Authentication Failed")
      */
     public String getAuthResultText() {
-        WaitUtils.waitForVisible(AUTH_RESULT_LOCATOR, 10);
-        return authResultLabel.getText();
+        WaitUtils.waitForVisible(locator("biometric.authResultIndicator"), 10);
+        return getText("biometric.authResultLabel");
     }
 
     /**
@@ -141,7 +113,7 @@ public class BiometricPage extends BasePage {
      * @return {@code true} if the authenticate button is displayed
      */
     public boolean isBiometricPromptAvailable() {
-        return isDisplayed(AUTHENTICATE_BTN_LOCATOR);
+        return isDisplayed("biometric.authenticateButtonIndicator");
     }
 
     // ── Enrollment Helpers ────────────────────────────────────────────────────

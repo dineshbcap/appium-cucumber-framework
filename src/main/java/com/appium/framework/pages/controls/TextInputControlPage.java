@@ -2,8 +2,6 @@ package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.KeyboardUtils;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -15,21 +13,17 @@ import org.openqa.selenium.WebElement;
  * <p>Neither of iOS's two text fields carries an accessibility id, so they're
  * matched positionally: the plain field is the first {@code XCUIElementTypeTextField}
  * in document order (a second, unrelated search-style field appears later on screen).</p>
+ *
+ * <p>Locators live in {@code locators_android.properties} / {@code locators_ios.properties}
+ * under the {@code textInput.*} keys.</p>
  */
 public class TextInputControlPage extends BasePage {
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/edit")
-    @iOSXCUITFindBy(xpath = "(//XCUIElementTypeTextField)[1]")
-    private WebElement textField;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/edit1")
-    @iOSXCUITFindBy(className = "XCUIElementTypeSecureTextField")
-    private WebElement passwordField;
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
     public void enterText(String text) {
         log.info("Entering text: {}", text);
+        WebElement textField = element("textInput.textField");
         textField.click();
         textField.clear();
         textField.sendKeys(text);
@@ -37,11 +31,12 @@ public class TextInputControlPage extends BasePage {
 
     public void clearTextField() {
         log.info("Clearing text field");
-        textField.clear();
+        element("textInput.textField").clear();
     }
 
     public void enterPassword(String password) {
         log.info("Entering password");
+        WebElement passwordField = element("textInput.passwordField");
         passwordField.click();
         passwordField.clear();
         passwordField.sendKeys(password);
@@ -51,13 +46,14 @@ public class TextInputControlPage extends BasePage {
         log.info("Appending text: {}", text);
         // UiAutomator2's sendKeys replaces an EditText's content rather than
         // inserting at the cursor, so a true append needs the full string set at once.
+        WebElement textField = element("textInput.textField");
         String existing = textField.getText();
         textField.clear();
         textField.sendKeys(existing + text);
     }
 
     public String getTextFieldValue() {
-        return textField.getText();
+        return getText("textInput.textField");
     }
 
     /**
@@ -68,7 +64,7 @@ public class TextInputControlPage extends BasePage {
      */
     public boolean isTextFieldEmpty() {
         String placeholder = isIOS() ? "Placeholder text" : "hint text";
-        return placeholder.equals(textField.getText());
+        return placeholder.equals(getText("textInput.textField"));
     }
 
     /**
@@ -81,6 +77,6 @@ public class TextInputControlPage extends BasePage {
         if (isIOS()) {
             return KeyboardUtils.isKeyboardShown();
         }
-        return Boolean.parseBoolean(passwordField.getAttribute("focused"));
+        return Boolean.parseBoolean(element("textInput.passwordField").getAttribute("focused"));
     }
 }

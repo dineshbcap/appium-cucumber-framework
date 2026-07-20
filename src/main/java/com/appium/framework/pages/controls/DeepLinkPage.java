@@ -5,10 +5,6 @@ import com.appium.framework.driver.DriverManager;
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.AppUtils;
 import com.appium.framework.utils.WaitUtils;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import java.util.Map;
 
@@ -43,19 +39,8 @@ import java.util.Map;
 public class DeepLinkPage extends BasePage {
 
     // ── Locators ──────────────────────────────────────────────────────────────
-
-    /** Indicator element visible only on the target deep-linked screen. */
-    @AndroidFindBy(xpath = "//*[@text='Deep Link Target']")
-    @iOSXCUITFindBy(accessibility = "deepLinkTarget")
-    private WebElement deepLinkTargetIndicator;
-
-    /** The current page heading, used to verify which screen the deep link opened. */
-    @AndroidFindBy(id = "io.appium.android.apis:id/page_title")
-    @iOSXCUITFindBy(accessibility = "pageTitle")
-    private WebElement pageTitle;
-
-    private static final By DEEP_LINK_TARGET =
-            By.xpath("//*[@text='Deep Link Target' or @name='deepLinkTarget']");
+    // Resolved from locators_android.properties / locators_ios.properties via
+    // BasePage#locator / #isDisplayed / #getText. See "deepLink.*" keys.
 
     // ── Android Deep Linking ───────────────────────────────────────────────────
 
@@ -132,7 +117,7 @@ public class DeepLinkPage extends BasePage {
      * @return {@code true} if the target screen indicator is visible
      */
     public boolean isDeepLinkTargetDisplayed() {
-        return isDisplayed(DEEP_LINK_TARGET);
+        return isDisplayed("deepLink.targetDisplayedIndicator");
     }
 
     /**
@@ -141,7 +126,7 @@ public class DeepLinkPage extends BasePage {
      */
     public void waitForDeepLinkTarget() {
         log.info("Waiting for deep link target screen");
-        WaitUtils.waitForVisible(DEEP_LINK_TARGET, 15);
+        WaitUtils.waitForVisible(locator("deepLink.targetDisplayedIndicator"), 15);
     }
 
     /**
@@ -151,6 +136,6 @@ public class DeepLinkPage extends BasePage {
      * @return current page title text
      */
     public String getCurrentPageTitle() {
-        return pageTitle.getText();
+        return getText("deepLink.pageTitle");
     }
 }

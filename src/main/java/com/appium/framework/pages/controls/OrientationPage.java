@@ -2,10 +2,6 @@ package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.DeviceUtils;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 /**
  * Page object demonstrating <b>Device Orientation</b> testing.
@@ -28,28 +24,8 @@ import org.openqa.selenium.WebElement;
 public class OrientationPage extends BasePage {
 
     // ── Locators ──────────────────────────────────────────────────────────────
-
-    /** Orientation indicator label that shows current orientation in the app. */
-    @AndroidFindBy(id = "io.appium.android.apis:id/orientation_label")
-    @iOSXCUITFindBy(accessibility = "orientationLabel")
-    private WebElement orientationLabel;
-
-    /** Content that appears only in landscape mode (e.g., wider charts, side panels). */
-    @AndroidFindBy(id = "io.appium.android.apis:id/landscape_content")
-    @iOSXCUITFindBy(accessibility = "landscapeContent")
-    private WebElement landscapeContent;
-
-    /** Content that appears only in portrait mode (e.g., tall lists, cards). */
-    @AndroidFindBy(id = "io.appium.android.apis:id/portrait_content")
-    @iOSXCUITFindBy(accessibility = "portraitContent")
-    private WebElement portraitContent;
-
-    private static final By LANDSCAPE_CONTENT_INDICATOR =
-            By.xpath("//*[@resource-id='io.appium.android.apis:id/landscape_content'" +
-                     " or @name='landscapeContent']");
-    private static final By PORTRAIT_CONTENT_INDICATOR  =
-            By.xpath("//*[@resource-id='io.appium.android.apis:id/portrait_content'" +
-                     " or @name='portraitContent']");
+    // Resolved from locators_android.properties / locators_ios.properties via
+    // BasePage#isDisplayed. See "orientation.*" keys.
 
     // ── Orientation Actions ────────────────────────────────────────────────────
 
@@ -119,7 +95,7 @@ public class OrientationPage extends BasePage {
      * @return {@code true} if landscape content indicator is displayed
      */
     public boolean isLandscapeContentVisible() {
-        return isDisplayed(LANDSCAPE_CONTENT_INDICATOR);
+        return isDisplayed("orientation.landscapeIndicator");
     }
 
     /**
@@ -128,7 +104,7 @@ public class OrientationPage extends BasePage {
      * @return {@code true} if portrait content indicator is displayed
      */
     public boolean isPortraitContentVisible() {
-        return isDisplayed(PORTRAIT_CONTENT_INDICATOR);
+        return isDisplayed("orientation.portraitIndicator");
     }
 
     /**

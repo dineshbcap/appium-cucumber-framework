@@ -1,8 +1,6 @@
 package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
@@ -11,42 +9,34 @@ import java.util.List;
  * Page object for ApiDemos' real "Views &gt; Controls &gt; 1. Light Theme" screen,
  * which has a two-button {@code RadioGroup} ({@code radio1}, {@code radio2}) and
  * no separate result label — selection state is read directly from each button.
+ *
+ * <p>Locators live in {@code locators_android.properties} / {@code locators_ios.properties}
+ * under the {@code radio.*} keys.</p>
  */
 public class RadioButtonControlPage extends BasePage {
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/radio1")
-    @iOSXCUITFindBy(accessibility = "radioButton1")
-    private WebElement radio1;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/radio2")
-    @iOSXCUITFindBy(accessibility = "radioButton2")
-    private WebElement radio2;
-
-    @AndroidFindBy(className = "android.widget.RadioButton")
-    @iOSXCUITFindBy(className = "XCUIElementTypeRadioButton")
-    private List<WebElement> allRadioButtons;
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
     public void selectRadio1() {
         log.info("Selecting radio button 1");
-        radio1.click();
+        click("radio.one");
     }
 
     public void selectRadio2() {
         log.info("Selecting radio button 2");
-        radio2.click();
+        click("radio.two");
     }
 
     public boolean isRadio1Selected() {
-        return isChecked(radio1);
+        return isChecked(element("radio.one"));
     }
 
     public boolean isRadio2Selected() {
-        return isChecked(radio2);
+        return isChecked(element("radio.two"));
     }
 
     public void selectRadioByIndex(int index) {
+        List<WebElement> allRadioButtons = elements("radio.all");
         if (index < 0 || index >= allRadioButtons.size()) {
             throw new IndexOutOfBoundsException("Radio button index out of range: " + index);
         }
@@ -55,6 +45,7 @@ public class RadioButtonControlPage extends BasePage {
     }
 
     public int getSelectedRadioIndex() {
+        List<WebElement> allRadioButtons = elements("radio.all");
         for (int i = 0; i < allRadioButtons.size(); i++) {
             if (isChecked(allRadioButtons.get(i))) return i;
         }
@@ -62,7 +53,7 @@ public class RadioButtonControlPage extends BasePage {
     }
 
     public int getRadioButtonCount() {
-        return allRadioButtons.size();
+        return elements("radio.all").size();
     }
 
     private boolean isChecked(WebElement element) {

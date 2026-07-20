@@ -2,8 +2,6 @@ package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.GestureUtils;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
@@ -18,13 +16,9 @@ import org.openqa.selenium.WebElement;
  */
 public class SliderControlPage extends BasePage {
 
-    @AndroidFindBy(id = "io.appium.android.apis:id/seek")
-    @iOSXCUITFindBy(className = "XCUIElementTypeSlider")
-    private WebElement seekBar;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/progress")
-    @iOSXCUITFindBy(className = "XCUIElementTypeSlider")
-    private WebElement progressLabel;
+    // ── Locators ──────────────────────────────────────────────────────────────
+    // Resolved from locators_android.properties / locators_ios.properties via
+    // BasePage#element. See "slider.*" keys.
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -55,10 +49,10 @@ public class SliderControlPage extends BasePage {
      */
     public int getProgressValue() {
         if (isIOS()) {
-            String value = seekBar.getAttribute("value").trim(); // e.g. "42%"
+            String value = element("slider.seekBar").getAttribute("value").trim(); // e.g. "42%"
             return Integer.parseInt(value.replace("%", ""));
         }
-        String text = progressLabel.getText().trim();
+        String text = getText("slider.progressLabel").trim();
         return Integer.parseInt(text.split("\\s+")[0]);
     }
 
@@ -68,6 +62,7 @@ public class SliderControlPage extends BasePage {
         if (percent < 0) percent = 0;
         if (percent > 100) percent = 100;
 
+        WebElement seekBar = element("slider.seekBar");
         Point location = seekBar.getLocation();
         Dimension size = seekBar.getSize();
         int y = location.getY() + size.height / 2;

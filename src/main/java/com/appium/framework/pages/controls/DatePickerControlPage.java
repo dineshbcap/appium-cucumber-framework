@@ -2,10 +2,7 @@ package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.WaitUtils;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 /**
  * Page object for ApiDemos' real "Views &gt; Date Widgets &gt; 1. Dialog" screen:
@@ -15,38 +12,12 @@ import org.openqa.selenium.WebElement;
  * real {@code next}/{@code prev} buttons. The time dialog opens in radial
  * (tap-the-clock-face) mode by default — {@code toggle_mode} switches it to
  * real, typeable {@code input_hour}/{@code input_minute} EditText fields.
+ *
+ * <p>Locators live in {@code locators_android.properties} under the
+ * {@code datePicker.*} keys — the system Date/Time picker dialog widgets used
+ * here have no iOS equivalent screen in this framework.</p>
  */
 public class DatePickerControlPage extends BasePage {
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/pickDate")
-    @iOSXCUITFindBy(accessibility = "showDatePicker")
-    private WebElement showDatePickerButton;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/pickTime")
-    @iOSXCUITFindBy(accessibility = "showTimePicker")
-    private WebElement showTimePickerButton;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/dateDisplay")
-    @iOSXCUITFindBy(accessibility = "dateResult")
-    private WebElement dateResult;
-
-    // DatePicker dialog elements
-    private static final By DATE_PICKER_NEXT   = By.id("android:id/next");
-    private static final By DATE_PICKER_PREV   = By.id("android:id/prev");
-    private static final By DATE_PICKER_OK     = By.id("android:id/button1");
-    private static final By DATE_PICKER_CANCEL = By.id("android:id/button2");
-    private static final By DATE_PICKER_HEADER = By.id("android:id/date_picker_header_date");
-    // The header only reflects the *selected* date, not the page currently
-    // scrolled into view — every visible month always has a "day 1" cell,
-    // so its content-desc ("01 January 2026") is what actually identifies
-    // which month/year is on screen.
-    private static final By FIRST_DAY_CELL = By.xpath("//*[starts-with(@content-desc, '01 ')]");
-
-    // TimePicker dialog elements (keyboard-input mode)
-    private static final By TOGGLE_MODE       = By.id("android:id/toggle_mode");
-    private static final By TIME_INPUT_HOUR   = By.id("android:id/input_hour");
-    private static final By TIME_INPUT_MINUTE = By.id("android:id/input_minute");
-    private static final By AM_PM_SPINNER     = By.id("android:id/am_pm_spinner");
 
     private static final String[] MONTH_NAMES = {"January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"};
@@ -55,12 +26,12 @@ public class DatePickerControlPage extends BasePage {
 
     public void openDatePicker() {
         log.info("Opening date picker");
-        showDatePickerButton.click();
+        click("datePicker.showDateButton");
     }
 
     public void openTimePicker() {
         log.info("Opening time picker");
-        showTimePickerButton.click();
+        click("datePicker.showTimeButton");
     }
 
     public void selectDate(int year, int month, int day) {
@@ -75,31 +46,31 @@ public class DatePickerControlPage extends BasePage {
 
     public void confirmDatePicker() {
         log.info("Confirming date picker selection");
-        click(DATE_PICKER_OK);
+        click("datePicker.okButton");
     }
 
     public void cancelDatePicker() {
         log.info("Cancelling date picker");
-        click(DATE_PICKER_CANCEL);
+        click("datePicker.cancelButton");
     }
 
     public void setTime(int hour, int minute, boolean isAm) {
         log.info("Setting time: {}:{} {}", hour, minute, isAm ? "AM" : "PM");
         openTimePicker();
-        click(TOGGLE_MODE); // switch from the radial clock face to typeable fields
-        sendKeys(TIME_INPUT_HOUR, String.valueOf(hour));
-        sendKeys(TIME_INPUT_MINUTE, String.valueOf(minute));
-        click(AM_PM_SPINNER);
+        click("datePicker.toggleMode"); // switch from the radial clock face to typeable fields
+        sendKeys("datePicker.hourInput", String.valueOf(hour));
+        sendKeys("datePicker.minuteInput", String.valueOf(minute));
+        click("datePicker.amPmSpinner");
         click(By.xpath("//*[@text='" + (isAm ? "AM" : "PM") + "']"));
         confirmDatePicker();
     }
 
     public String getSelectedDate() {
-        return dateResult.getText();
+        return getText("datePicker.dateResult");
     }
 
     public String getDatePickerHeaderText() {
-        return getText(DATE_PICKER_HEADER);
+        return getText("datePicker.header");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -114,7 +85,7 @@ public class DatePickerControlPage extends BasePage {
             int[] current = getCurrentVisibleMonthYear();
             int diff = (targetYear - current[0]) * 12 + (targetMonth - current[1]);
             if (diff == 0) return;
-            click(diff > 0 ? DATE_PICKER_NEXT : DATE_PICKER_PREV);
+            click(diff > 0 ? "datePicker.nextButton" : "datePicker.prevButton");
             // The month grid cross-fades to the new page on click — wait for the
             // page-flip animation to settle before re-reading it, or it's stale.
             WaitUtils.hardWait(400);
@@ -123,7 +94,7 @@ public class DatePickerControlPage extends BasePage {
     }
 
     private int[] getCurrentVisibleMonthYear() {
-        String desc = findElement(FIRST_DAY_CELL).getAttribute("content-desc"); // e.g. "01 January 2026"
+        String desc = element("datePicker.firstDayCell").getAttribute("content-desc"); // e.g. "01 January 2026"
         String[] parts = desc.trim().split("\\s+");
         int year = Integer.parseInt(parts[2]);
         int month = 1;

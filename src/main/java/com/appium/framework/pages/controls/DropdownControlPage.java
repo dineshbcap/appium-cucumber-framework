@@ -1,9 +1,6 @@
 package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
-import io.appium.java_client.AppiumBy;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -15,32 +12,24 @@ import java.util.stream.Collectors;
  * (spinner1, values red/orange/yellow/green/blue/violet) and a "Planet:" spinner
  * (spinner2, values Mercury..Pluto). Each spinner's currently-selected value is
  * rendered by a child {@code android:id/text1} TextView, not the spinner node itself.
+ *
+ * <p>Locators live in {@code locators_android.properties} / {@code locators_ios.properties}
+ * under the {@code dropdown.*} keys.</p>
  */
 public class DropdownControlPage extends BasePage {
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/spinner1")
-    @iOSXCUITFindBy(accessibility = "spinner1")
-    private WebElement spinner1;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/spinner2")
-    @iOSXCUITFindBy(accessibility = "spinner2")
-    private WebElement spinner2;
-
-    private static final By DROPDOWN_ITEM =
-            AppiumBy.androidUIAutomator("new UiSelector().className(\"android.widget.CheckedTextView\")");
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
     public void openDropdown1() {
         log.info("Opening spinner/dropdown 1");
-        spinner1.click();
-        findElement(DROPDOWN_ITEM); // wait for the popup to render before returning
+        click("dropdown.spinner1");
+        element("dropdown.item"); // wait for the popup to render before returning
     }
 
     public void openDropdown2() {
         log.info("Opening spinner/dropdown 2");
-        spinner2.click();
-        findElement(DROPDOWN_ITEM); // wait for the popup to render before returning
+        click("dropdown.spinner2");
+        element("dropdown.item"); // wait for the popup to render before returning
     }
 
     public void closeDropdown() {
@@ -69,7 +58,7 @@ public class DropdownControlPage extends BasePage {
     public void selectDropdown1ByIndex(int index) {
         log.info("Selecting index {} from dropdown 1", index);
         openDropdown1();
-        List<WebElement> items = findElements(DROPDOWN_ITEM);
+        List<WebElement> items = elements("dropdown.item");
         if (index >= 0 && index < items.size()) {
             items.get(index).click();
         } else {
@@ -78,16 +67,16 @@ public class DropdownControlPage extends BasePage {
     }
 
     public String getSelectedDropdown1Value() {
-        return spinner1.findElement(By.className("android.widget.TextView")).getText();
+        return element("dropdown.spinner1").findElement(By.className("android.widget.TextView")).getText();
     }
 
     public String getSelectedDropdown2Value() {
-        return spinner2.findElement(By.className("android.widget.TextView")).getText();
+        return element("dropdown.spinner2").findElement(By.className("android.widget.TextView")).getText();
     }
 
     public List<String> getAllDropdown1Options() {
         openDropdown1();
-        List<WebElement> items = findElements(DROPDOWN_ITEM);
+        List<WebElement> items = elements("dropdown.item");
         List<String> options = items.stream()
                 .map(WebElement::getText)
                 .collect(Collectors.toList());

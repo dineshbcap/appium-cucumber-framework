@@ -2,32 +2,23 @@ package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
 import io.appium.java_client.AppiumBy;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Locators live in {@code locators_android.properties} / {@code locators_ios.properties}
+ * under the {@code list.*} keys.
+ */
 public class ListControlPage extends BasePage {
-
-    @AndroidFindBy(id = "android:id/list")
-    @iOSXCUITFindBy(accessibility = "mainList")
-    private WebElement listView;
-
-    @AndroidFindBy(className = "android.widget.ListView")
-    @iOSXCUITFindBy(className = "XCUIElementTypeTable")
-    private WebElement scrollableList;
-
-    @AndroidFindBy(xpath = "//android.widget.ListView//android.widget.TextView")
-    @iOSXCUITFindBy(className = "XCUIElementTypeCell")
-    private List<WebElement> listItems;
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
     public void tapItemAtIndex(int index) {
         log.info("Tapping list item at index: {}", index);
+        List<WebElement> listItems = elements("list.items");
         if (index < 0 || index >= listItems.size()) {
             throw new IndexOutOfBoundsException("List index out of range: " + index);
         }
@@ -49,17 +40,17 @@ public class ListControlPage extends BasePage {
     }
 
     public String getItemTextAtIndex(int index) {
-        return listItems.get(index).getText();
+        return elements("list.items").get(index).getText();
     }
 
     public List<String> getAllItemTexts() {
-        return listItems.stream()
+        return elements("list.items").stream()
                 .map(WebElement::getText)
                 .collect(Collectors.toList());
     }
 
     public int getItemCount() {
-        return listItems.size();
+        return elements("list.items").size();
     }
 
     public boolean isItemDisplayed(String text) {

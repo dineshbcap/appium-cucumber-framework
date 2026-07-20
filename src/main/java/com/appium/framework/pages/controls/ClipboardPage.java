@@ -3,8 +3,6 @@ package com.appium.framework.pages.controls;
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.ClipboardUtils;
 import com.appium.framework.utils.KeyboardUtils;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -12,29 +10,11 @@ import org.openqa.selenium.WebElement;
  * Its "Copy Text" (plain) button copies a fixed string to the OS clipboard and
  * reflects it in an on-screen label — a genuine copy-to-clipboard flow, unlike
  * the fictional free-text copy button this page previously assumed.
+ *
+ * <p>Locators live in {@code locators_android.properties} / {@code locators_ios.properties}
+ * under the {@code clipboard.*} keys.</p>
  */
 public class ClipboardPage extends BasePage {
-
-    // ── Locators ──────────────────────────────────────────────────────────────
-
-    /** "Copy Text" button for the plain-text clipboard sample. */
-    @AndroidFindBy(id = "io.appium.android.apis:id/copy_plain_text")
-    @iOSXCUITFindBy(accessibility = "copyButton")
-    private WebElement copyPlainTextButton;
-
-    /** Label reflecting the current clipboard's text content. */
-    @AndroidFindBy(id = "io.appium.android.apis:id/clip_text")
-    @iOSXCUITFindBy(accessibility = "clipboardContent")
-    private WebElement clipTextLabel;
-
-    /**
-     * Real EditText on the "Views &gt; TextFields" screen (Android) / the first
-     * unnamed {@code XCUIElementTypeTextField} on "Text Fields" (iOS) — used to
-     * test pasting.
-     */
-    @AndroidFindBy(id = "io.appium.android.apis:id/edit")
-    @iOSXCUITFindBy(xpath = "(//XCUIElementTypeTextField)[1]")
-    private WebElement pasteTargetField;
 
     // ── Copy Actions ──────────────────────────────────────────────────────────
 
@@ -44,7 +24,7 @@ public class ClipboardPage extends BasePage {
      */
     public void tapCopyPlainText() {
         log.info("Tapping 'Copy Text' (plain text) button");
-        copyPlainTextButton.click();
+        click("clipboard.copyPlainTextButton");
     }
 
     /**
@@ -66,7 +46,7 @@ public class ClipboardPage extends BasePage {
      * @return clip text label content
      */
     public String getClipTextLabel() {
-        return clipTextLabel.getText();
+        return getText("clipboard.clipTextLabel");
     }
 
     // ── Paste Actions ─────────────────────────────────────────────────────────
@@ -79,6 +59,7 @@ public class ClipboardPage extends BasePage {
      */
     public void pasteIntoTextField() {
         log.info("Pasting into text field");
+        WebElement pasteTargetField = element("clipboard.pasteTargetField");
         pasteTargetField.clear();
         pasteTargetField.click();
         KeyboardUtils.pasteText(pasteTargetField);
@@ -90,7 +71,7 @@ public class ClipboardPage extends BasePage {
      * @return field content after a paste
      */
     public String getPasteTargetText() {
-        return pasteTargetField.getText();
+        return getText("clipboard.pasteTargetField");
     }
 
     // ── Utilities ─────────────────────────────────────────────────────────────

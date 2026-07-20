@@ -3,8 +3,6 @@ package com.appium.framework.pages.controls;
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.KeyboardUtils;
 import io.appium.java_client.android.nativekey.AndroidKey;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
@@ -33,15 +31,10 @@ import org.openqa.selenium.WebElement;
 public class KeyboardPage extends BasePage {
 
     // ── Locators ──────────────────────────────────────────────────────────────
-
-    /**
-     * Standard single-line text input field that triggers the keyboard on focus.
-     * On iOS this is the first (unnamed) {@code XCUIElementTypeTextField} on the
-     * real "Text Fields" screen — matched positionally, same as TextInputControlPage.
-     */
-    @AndroidFindBy(id = "io.appium.android.apis:id/edit")
-    @iOSXCUITFindBy(xpath = "(//XCUIElementTypeTextField)[1]")
-    private WebElement textField;
+    // Resolved from locators_android.properties / locators_ios.properties via
+    // BasePage#locator / #element. See "keyboard.textField": on iOS this is the
+    // first (unnamed) XCUIElementTypeTextField on the real "Text Fields" screen
+    // — matched positionally, same as TextInputControlPage.
 
     // ── Text Entry ────────────────────────────────────────────────────────────
 
@@ -50,7 +43,7 @@ public class KeyboardPage extends BasePage {
      */
     public void focusTextField() {
         log.info("Focusing text field (keyboard should appear)");
-        textField.click();
+        click("keyboard.textField");
     }
 
     /**
@@ -61,6 +54,7 @@ public class KeyboardPage extends BasePage {
      */
     public void typeText(String text) {
         log.info("Typing: '{}'", text);
+        WebElement textField = element("keyboard.textField");
         textField.click();
         textField.sendKeys(text);
     }
@@ -72,8 +66,7 @@ public class KeyboardPage extends BasePage {
      */
     public void clearAndType(String text) {
         log.info("Clearing and typing: '{}'", text);
-        textField.clear();
-        textField.sendKeys(text);
+        sendKeys("keyboard.textField", text);
     }
 
     // ── Keyboard Visibility ───────────────────────────────────────────────────
@@ -136,7 +129,7 @@ public class KeyboardPage extends BasePage {
     public void pressBackspaceKey() {
         log.info("Pressing Backspace key");
         if (isIOS()) {
-            textField.sendKeys(Keys.BACK_SPACE);
+            element("keyboard.textField").sendKeys(Keys.BACK_SPACE);
         } else {
             KeyboardUtils.pressBackspace();
         }
@@ -186,6 +179,6 @@ public class KeyboardPage extends BasePage {
      * @return text field value
      */
     public String getTextFieldValue() {
-        return textField.getText();
+        return getText("keyboard.textField");
     }
 }

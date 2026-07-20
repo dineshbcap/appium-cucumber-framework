@@ -13,11 +13,9 @@ public class WebViewControlPage extends BasePage {
     private static final String NATIVE_APP  = "NATIVE_APP";
     private static final String WEBVIEW_KEY = "WEBVIEW";
 
-    private static final By WEB_URL_BAR = By.id("url_bar");
-    private static final By WEB_CONTENT = By.id("webview_content");
-    private static final By BACK_BUTTON = By.id("io.appium.android.apis:id/back_button");
-    private static final By FORWARD_BTN = By.id("io.appium.android.apis:id/forward_button");
-    private static final By RELOAD_BTN  = By.id("io.appium.android.apis:id/reload_button");
+    // Sample webview locators (webView.urlBar, webView.content, webView.backButton,
+    // webView.forwardButton, webView.reloadButton) live in locators_android.properties /
+    // locators_ios.properties, ready for a real hybrid screen via locator("webView.*").
 
     // Both AndroidDriver and IOSDriver implement SupportsContextSwitching; AppiumDriver does not
     private SupportsContextSwitching contextDriver() {

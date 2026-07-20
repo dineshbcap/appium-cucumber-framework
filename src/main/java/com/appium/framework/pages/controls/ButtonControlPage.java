@@ -2,46 +2,32 @@ package com.appium.framework.pages.controls;
 
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.GestureUtils;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 /**
  * Page object for ApiDemos' real "Views &gt; Buttons" screen, which has three
  * widgets: a "Normal" button, a "Small" button, and an ON/OFF toggle button.
+ *
+ * <p>Locators live in {@code locators_android.properties} / {@code locators_ios.properties}
+ * under the {@code button.*} keys.</p>
  */
 public class ButtonControlPage extends BasePage {
-
-    // ── Locators ──────────────────────────────────────────────────────────────
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/button_normal")
-    @iOSXCUITFindBy(accessibility = "normalButton")
-    private WebElement normalButton;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/button_small")
-    @iOSXCUITFindBy(accessibility = "smallButton")
-    private WebElement smallButton;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/button_toggle")
-    @iOSXCUITFindBy(accessibility = "toggleButton")
-    private WebElement toggleButton;
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
     public void tapNormalButton() {
         log.info("Tapping Normal button");
-        GestureUtils.tap(normalButton);
+        GestureUtils.tap(element("button.normal"));
     }
 
     public void tapSmallButton() {
         log.info("Tapping Small button");
-        GestureUtils.tap(smallButton);
+        GestureUtils.tap(element("button.small"));
     }
 
     public void tapToggleButton() {
         log.info("Tapping Toggle button");
-        GestureUtils.tap(toggleButton);
+        GestureUtils.tap(element("button.toggle"));
     }
 
     public void tapButtonLabeled(String label) {
@@ -50,14 +36,14 @@ public class ButtonControlPage extends BasePage {
     }
 
     public boolean isNormalButtonDisplayed() {
-        return normalButton.isDisplayed();
+        return isDisplayed("button.normal");
     }
 
     public boolean isNormalButtonEnabled() {
-        return normalButton.isEnabled();
+        return isEnabled("button.normal");
     }
 
     public String getToggleButtonText() {
-        return toggleButton.getText();
+        return getText("button.toggle");
     }
 }

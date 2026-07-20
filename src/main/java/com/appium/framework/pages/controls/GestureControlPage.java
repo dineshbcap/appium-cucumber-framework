@@ -4,9 +4,6 @@ import com.appium.framework.driver.DriverManager;
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.GestureUtils;
 import com.appium.framework.utils.MobileGestureUtils;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -22,20 +19,11 @@ import org.openqa.selenium.WebElement;
  * </ul>
  * Tap, long-press, double-tap, and pinch-zoom have no real target in this app
  * and are intentionally not covered.
+ *
+ * <p>Locators live in {@code locators_android.properties} / {@code locators_ios.properties}
+ * under the {@code gesture.*} keys.</p>
  */
 public class GestureControlPage extends BasePage {
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/drag_dot_1")
-    @iOSXCUITFindBy(accessibility = "draggableItem")
-    private WebElement draggableItem;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/drag_dot_2")
-    @iOSXCUITFindBy(accessibility = "dropZone")
-    private WebElement dropZone;
-
-    @AndroidFindBy(id = "io.appium.android.apis:id/drag_result_text")
-    @iOSXCUITFindBy(accessibility = "gestureResult")
-    private WebElement gestureResult;
 
     // ── W3C Actions gestures ─────────────────────────────────────────────────
 
@@ -51,11 +39,11 @@ public class GestureControlPage extends BasePage {
 
     public void performDragAndDrop() {
         log.info("Performing drag and drop");
-        GestureUtils.dragAndDrop(draggableItem, dropZone);
+        GestureUtils.dragAndDrop(element("gesture.draggableItem"), element("gesture.dropZone"));
     }
 
     public String getGestureResult() {
-        return gestureResult.getText();
+        return getText("gesture.result");
     }
 
     /**
@@ -89,10 +77,10 @@ public class GestureControlPage extends BasePage {
     public void performMobileSwipeLeft() {
         log.info("mobile: swipe left");
         if (isIOS()) {
-            WebElement table = driver().findElement(By.className("XCUIElementTypeTable"));
+            WebElement table = element("gesture.iosSwipeTable");
             MobileGestureUtils.swipe(table, "left");
         } else {
-            MobileGestureUtils.swipe(draggableItem, "left");
+            MobileGestureUtils.swipe(element("gesture.draggableItem"), "left");
         }
     }
 
@@ -110,6 +98,6 @@ public class GestureControlPage extends BasePage {
             log.warn("Fling gesture is Android-only — skipping on iOS");
             return;
         }
-        MobileGestureUtils.flingAndroid(draggableItem, direction, 7500);
+        MobileGestureUtils.flingAndroid(element("gesture.draggableItem"), direction, 7500);
     }
 }

@@ -4,8 +4,6 @@ import com.appium.framework.config.ConfigReader;
 import com.appium.framework.driver.DriverManager;
 import com.appium.framework.pages.BasePage;
 import io.appium.java_client.AppiumBy;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.locators.RelativeLocator;
@@ -71,30 +69,12 @@ import java.util.List;
  */
 public class LocatorStrategyPage extends BasePage {
 
-    // ── 9. PageFactory Dual-Platform Locators ─────────────────────────────────
-
-    /**
-     * Demonstrates {@code @AndroidFindBy} + {@code @iOSXCUITFindBy} on the same field.
-     * PageFactory evaluates the correct annotation at runtime based on the driver type.
-     * This is the cleanest approach for multi-platform pages.
-     */
-    @AndroidFindBy(accessibility = "Text")         // maps to content-desc on Android
-    @iOSXCUITFindBy(accessibility = "Text Fields") // real UIKitCatalog root cell
-    private WebElement textNavItem;
-
-    /**
-     * Using resource ID (Android) and accessibility ID (iOS) for the same semantic element.
-     */
-    @AndroidFindBy(id = "io.appium.android.apis:id/text1")
-    @iOSXCUITFindBy(id = "text1Label")
-    private WebElement textItem;
-
-    /**
-     * Using XPath on both platforms. Less preferred but useful when no ID/accessibility is set.
-     */
-    @AndroidFindBy(xpath = "//android.widget.ListView/android.widget.TextView[1]")
-    @iOSXCUITFindBy(xpath = "//XCUIElementTypeTable/XCUIElementTypeCell[1]")
-    private WebElement firstListItem;
+    // ── 9. Dual-Platform Locators via properties ──────────────────────────────
+    // These demonstrate the same "one field, two platforms" idea PageFactory's
+    // @AndroidFindBy/@iOSXCUITFindBy annotations provided, but resolved from
+    // locators_android.properties / locators_ios.properties instead — see the
+    // "locatorStrategy.*" keys. locator(key) picks the right strategy/value pair
+    // for the current platform at call time.
 
     // ── Actions using various locator strategies ───────────────────────────────
 
@@ -252,25 +232,26 @@ public class LocatorStrategyPage extends BasePage {
                 .findElement(AppiumBy.iOSClassChain(classChainExpression));
     }
 
-    // ── PageFactory Fields (strategy 9) ───────────────────────────────────────
+    // ── Properties-Resolved Fields (strategy 9) ───────────────────────────────
 
     /**
-     * Demonstrates clicking an element located via PageFactory dual-platform annotation.
-     * The correct locator ({@code @AndroidFindBy} or {@code @iOSXCUITFindBy}) is resolved
-     * automatically by the {@link io.appium.java_client.pagefactory.AppiumFieldDecorator}.
+     * Demonstrates clicking an element located via a dual-platform properties key.
+     * The correct strategy/value ({@code locatorStrategy.textNavItem} in
+     * locators_android.properties vs. locators_ios.properties) is resolved
+     * automatically by {@link com.appium.framework.locators.LocatorRepository}.
      */
     public void clickTextNavItem() {
-        log.info("[Strategy: PageFactory] Clicking text nav item");
-        textNavItem.click();
+        log.info("[Strategy: properties-resolved] Clicking text nav item");
+        click("locatorStrategy.textNavItem");
     }
 
     /**
-     * Returns the text of the first list item found via PageFactory XPath annotation.
+     * Returns the text of the first list item found via a dual-platform XPath key.
      *
      * @return text of the first list item
      */
     public String getFirstListItemText() {
-        return firstListItem.getText();
+        return getText("locatorStrategy.firstListItem");
     }
 
     // ── Attribute Reading (bonus: element inspection) ─────────────────────────

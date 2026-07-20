@@ -3,11 +3,7 @@ package com.appium.framework.pages.controls;
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.AppUtils;
 import com.appium.framework.utils.WaitUtils;
-import io.appium.java_client.AppiumBy;
-import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.iOSXCUITFindBy;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 /**
  * Page object demonstrating <b>App Lifecycle management</b> — one of the most important
@@ -32,31 +28,17 @@ import org.openqa.selenium.WebElement;
 public class AppLifecyclePage extends BasePage {
 
     // ── Locators ──────────────────────────────────────────────────────────────
+    // Resolved from locators_android.properties / locators_ios.properties via
+    // BasePage#locator. See "appLifecycle.*" keys — the iOS mainScreenIndicator
+    // deliberately uses an NSPredicate query rather than XPath: WDA builds XPath
+    // matches against a cached XML snapshot of the tree, and that snapshot cache
+    // doesn't reliably invalidate across a terminateApp/activateApp cycle within
+    // the same WDA session — polling the same XPath repeatedly then keeps
+    // resolving to the same stale (pre-terminate) element reference and never
+    // recovers. Predicate strings query the live accessibility tree directly.
 
-    /** The main screen title — visible immediately after launch or resume. */
-    @AndroidFindBy(xpath = "//*[@text='API Demos']")
-    @iOSXCUITFindBy(accessibility = "UIKitCatalog")
-    private WebElement mainScreenTitle;
-
-    /** A button used to trigger an action before backgrounding to test state preservation. */
-    @AndroidFindBy(accessibility = "Text")
-    @iOSXCUITFindBy(accessibility = "Text Controls")
-    private WebElement textSectionButton;
-
-    /**
-     * Resume indicator — visible on the main screen, confirms the app has returned.
-     *
-     * <p>iOS uses an NSPredicate query rather than XPath here deliberately: WDA builds
-     * XPath matches against a cached XML snapshot of the tree, and that snapshot cache
-     * doesn't reliably invalidate across a {@code terminateApp}/{@code activateApp}
-     * cycle within the same WDA session — polling the same XPath repeatedly then keeps
-     * resolving to the same stale (pre-terminate) element reference and never recovers.
-     * Predicate strings query the live accessibility tree directly and aren't affected.</p>
-     */
     private By mainScreenIndicator() {
-        return isIOS()
-                ? AppiumBy.iOSNsPredicateString("name == 'UIKitCatalog'")
-                : By.xpath("//*[@text='API Demos']");
+        return locator("appLifecycle.mainScreenIndicator");
     }
 
     // ── App Background / Foreground ───────────────────────────────────────────
@@ -181,7 +163,7 @@ public class AppLifecyclePage extends BasePage {
      * @return main screen title text
      */
     public String getMainScreenTitle() {
-        return mainScreenTitle.getText();
+        return getText("appLifecycle.mainScreenTitle");
     }
 
     /**

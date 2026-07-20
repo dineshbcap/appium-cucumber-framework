@@ -4,10 +4,7 @@ import com.appium.framework.config.ConfigReader;
 import com.appium.framework.driver.DriverManager;
 import com.appium.framework.pages.BasePage;
 import com.appium.framework.utils.WaitUtils;
-import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebElement;
 
 import java.util.Map;
 
@@ -40,55 +37,12 @@ import java.util.Map;
  *
  * <p><b>Best practice:</b> Use {@code autoGrantPermissions=true} for happy-path scenarios.
  * Write explicit permission dialog tests only when testing the deny/rationale/settings flows.</p>
+ *
+ * <p>Locators live in {@code locators_android.properties} / {@code locators_ios.properties}
+ * under the {@code permission.*} keys — each key resolves to the right platform's dialog
+ * button automatically, so the actions below no longer need to branch on platform themselves.</p>
  */
 public class PermissionPage extends BasePage {
-
-    // ── Android Permission Dialog Locators ────────────────────────────────────
-
-    /**
-     * Android 12+ permission dialog Allow button (packageinstaller or permission controller).
-     * The resource ID varies by Android version; XPath with text is more stable.
-     */
-    private static final By ANDROID_ALLOW_BUTTON = By.xpath(
-            "//*[@resource-id='com.android.permissioncontroller:id/permission_allow_button'" +
-            " or @resource-id='com.android.packageinstaller:id/permission_allow_button'" +
-            " or @text='Allow'" +
-            " or @text='Allow only while using the app'" +
-            " or @text='While using the app']");
-
-    /** Android permission dialog "Allow all the time" option (location). */
-    private static final By ANDROID_ALLOW_ALL_BUTTON = By.xpath(
-            "//*[@text='Allow all the time' or @text='Always allow']");
-
-    /** Android permission Deny button. */
-    private static final By ANDROID_DENY_BUTTON = By.xpath(
-            "//*[@resource-id='com.android.permissioncontroller:id/permission_deny_button'" +
-            " or @resource-id='com.android.packageinstaller:id/permission_deny_button'" +
-            " or @text='Deny'" +
-            " or @text='Don\\'t allow']");
-
-    /** Android "Don't ask again" checkbox on the permission dialog. */
-    private static final By ANDROID_DONT_ASK_CHECKBOX = By.xpath(
-            "//*[@resource-id='com.android.permissioncontroller:id/dont_ask_again'" +
-            " or @text=\"Don't ask again\"]");
-
-    // ── iOS Permission Alert Locators ─────────────────────────────────────────
-
-    /** iOS permission dialog Allow button (system alert). */
-    private static final By IOS_ALLOW_BUTTON = By.xpath(
-            "//XCUIElementTypeButton[@name='Allow'" +
-            " or @name='Allow While Using App'" +
-            " or @name='OK'" +
-            " or @name='Continue']");
-
-    /** iOS permission dialog Don't Allow / Deny button. */
-    private static final By IOS_DENY_BUTTON = By.xpath(
-            "//XCUIElementTypeButton[@name=\"Don't Allow\" or @name='Deny']");
-
-    /** iOS location permission — "Allow While Using App" option. */
-    private static final By IOS_ALLOW_WHILE_USING = By.xpath(
-            "//XCUIElementTypeButton[@name='Allow While Using App'" +
-            " or @name='While Using the App']");
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -98,8 +52,7 @@ public class PermissionPage extends BasePage {
      */
     public void allowPermission() {
         log.info("Allowing permission dialog");
-        By allowButton = ConfigReader.isAndroid() ? ANDROID_ALLOW_BUTTON : IOS_ALLOW_BUTTON;
-        clickIfPresent(allowButton, 5);
+        clickIfPresent("permission.allowButton", 5);
     }
 
     /**
@@ -108,10 +61,7 @@ public class PermissionPage extends BasePage {
      */
     public void allowPermissionWhileUsingApp() {
         log.info("Allowing permission 'While Using App'");
-        By button = ConfigReader.isAndroid()
-                ? By.xpath("//*[@text='While using the app' or @text='Allow only while using the app']")
-                : IOS_ALLOW_WHILE_USING;
-        clickIfPresent(button, 5);
+        clickIfPresent("permission.allowWhileUsingButton", 5);
     }
 
     /**
@@ -119,9 +69,7 @@ public class PermissionPage extends BasePage {
      */
     public void allowPermissionAlways() {
         log.info("Allowing permission 'Always'");
-        By button = ConfigReader.isAndroid() ? ANDROID_ALLOW_ALL_BUTTON
-                : By.xpath("//XCUIElementTypeButton[@name='Always Allow' or @name='Always']");
-        clickIfPresent(button, 5);
+        clickIfPresent("permission.allowAlwaysButton", 5);
     }
 
     /**
@@ -130,8 +78,7 @@ public class PermissionPage extends BasePage {
      */
     public void denyPermission() {
         log.info("Denying permission dialog");
-        By denyButton = ConfigReader.isAndroid() ? ANDROID_DENY_BUTTON : IOS_DENY_BUTTON;
-        clickIfPresent(denyButton, 5);
+        clickIfPresent("permission.denyButton", 5);
     }
 
     /**
@@ -145,7 +92,7 @@ public class PermissionPage extends BasePage {
             return;
         }
         log.info("Selecting 'Don't ask again' and denying");
-        clickIfPresent(ANDROID_DONT_ASK_CHECKBOX, 5);
+        clickIfPresent("permission.dontAskAgainCheckbox", 5);
         denyPermission();
     }
 
@@ -155,8 +102,7 @@ public class PermissionPage extends BasePage {
      * @return {@code true} if a permission prompt is visible
      */
     public boolean isPermissionDialogDisplayed() {
-        By allowButton = ConfigReader.isAndroid() ? ANDROID_ALLOW_BUTTON : IOS_ALLOW_BUTTON;
-        return isDisplayed(allowButton);
+        return isDisplayed("permission.allowButton");
     }
 
     // ── ADB-Based Permission Grant (Android Advanced) ─────────────────────────
@@ -205,13 +151,15 @@ public class PermissionPage extends BasePage {
     // ── Private Helper ────────────────────────────────────────────────────────
 
     /**
-     * Clicks an element if it is present within the timeout, ignores if not found.
-     * Permission dialogs appear asynchronously — not every test needs them.
+     * Clicks the element resolved from a locator key if it is present within the
+     * timeout, ignores if not found. Permission dialogs appear asynchronously —
+     * not every test needs them.
      *
-     * @param locator        element locator
+     * @param key            dotted locator key
      * @param timeoutSeconds how long to wait for the element before giving up
      */
-    private void clickIfPresent(By locator, int timeoutSeconds) {
+    private void clickIfPresent(String key, int timeoutSeconds) {
+        By locator = locator(key);
         try {
             WaitUtils.waitForVisible(locator, timeoutSeconds).click();
             log.info("Clicked permission dialog button: {}", locator);
