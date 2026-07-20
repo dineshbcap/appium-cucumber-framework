@@ -190,4 +190,17 @@ public final class HealingSupport {
     public static void persistCache() {
         CACHE.persist();
     }
+
+    /**
+     * Writes the accumulated {@link HealingReporter} report — every heal recorded
+     * across the whole suite, not just the current scenario — to {@code healing.report.file}.
+     * Intended for a TestNG {@code @AfterSuite} hook (see {@code BaseCucumberRunner}),
+     * since {@link HealingReporter}'s records are a single process-wide list, not
+     * per-thread like {@link #CACHE}.
+     */
+    public static void writeReport() {
+        Path reportPath = Path.of(CONFIG.reportFile());
+        HealingReporter.writeReport(reportPath);
+        log.info("Self-healing report written -> {}", reportPath);
+    }
 }

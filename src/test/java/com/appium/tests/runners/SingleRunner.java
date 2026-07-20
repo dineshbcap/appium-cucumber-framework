@@ -1,6 +1,5 @@
 package com.appium.tests.runners;
 
-import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
 
 /**
@@ -42,7 +41,7 @@ import io.cucumber.testng.CucumberOptions;
         tags       = "@debug",
         monochrome = true
 )
-public class SingleRunner extends AbstractTestNGCucumberTests {
+public class SingleRunner extends BaseCucumberRunner {
     // No overrides needed — sequential execution is the default behaviour
     // of AbstractTestNGCucumberTests. Parallel override is in ParallelRunner.
 }
