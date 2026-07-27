@@ -1,6 +1,10 @@
 # Maven build output
 target/
 
+# Self-healing locator cache (machine/build-local; survives `mvn clean` on
+# purpose — see healing-config.properties)
+.healing-cache/
+
 # IntelliJ IDEA
 .idea/
 *.iml
