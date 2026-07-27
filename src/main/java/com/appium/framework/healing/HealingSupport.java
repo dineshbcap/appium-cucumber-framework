@@ -6,7 +6,9 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 import com.dinesh.healing.HealingCache;
 import com.dinesh.healing.HealingConfig;
+import com.dinesh.healing.HealingEngine;
 import com.dinesh.healing.HealingReporter;
+import com.dinesh.healing.LlmHealingEngine;
 import com.dinesh.healing.LocatorRepository;
 import com.dinesh.healing.Platform;
 import com.dinesh.healing.SelfHealingElementLocator;
@@ -39,7 +41,12 @@ import java.nio.file.Path;
  * <p><b>Config source:</b> {@code healing-config.properties} — likewise a distinct name
  * from the library's bundled {@code healing.properties}, for the same reason. See that
  * file for the available {@code healing.*} settings (enabled, failOnHeal, cache/report
- * file locations, LLM engine toggle).</p>
+ * file locations, LLM engine options).</p>
+ *
+ * <p><b>Healing engine:</b> {@link #ENGINE}, built once by {@link #buildEngine()} —
+ * {@link HealingEngine#NO_OP} unless {@code healing.llm.enabled=true}, in which case it's
+ * a {@link LlmHealingEngine}. Only consulted as a fallback, after
+ * {@link com.dinesh.healing.DeterministicHealer}'s heuristics fail.</p>
  *
  * <p><b>Cache build-id:</b> the healing cache is keyed by a build identifier — a version
  * name, CI build number, or APK/IPA checksum, anything that changes when the app under
@@ -62,6 +69,14 @@ public final class HealingSupport {
     private static final HealingConfig CONFIG = new HealingConfig(HEALING_CONFIG_CLASSPATH_FILE);
 
     private static final HealingCache CACHE = buildCache();
+
+    /**
+     * Deterministic healing ({@link com.dinesh.healing.DeterministicHealer}) always runs
+     * first inside {@link SelfHealingElementLocator}; this engine is only consulted when
+     * that fails. Defaults to {@link HealingEngine#NO_OP} — {@code healing.llm.enabled=false}
+     * — so no API key is required and no network call happens unless explicitly opted in.
+     */
+    private static final HealingEngine ENGINE = buildEngine();
 
     static {
         // HealingReporter's listener list is a single process-wide static, so this
@@ -111,6 +126,15 @@ public final class HealingSupport {
         return cache;
     }
 
+    private static HealingEngine buildEngine() {
+        if (!CONFIG.llmEnabled()) {
+            return HealingEngine.NO_OP;
+        }
+        log.info("LLM healing engine enabled: model={}, confidence>={}, apiKeyEnv={}",
+                CONFIG.llmModel(), CONFIG.llmConfidenceThreshold(), CONFIG.llmApiKeyEnv());
+        return new LlmHealingEngine(CONFIG);
+    }
+
     // ── Lifecycle (mirrors DriverManager) ──────────────────────────────────────
 
     /**
@@ -122,7 +146,7 @@ public final class HealingSupport {
      * @param driver the driver just created for this thread
      */
     public static void init(AppiumDriver driver) {
-        LOCATOR_THREAD.set(new SelfHealingElementLocator(driver, REPOSITORY, CACHE, CONFIG));
+        LOCATOR_THREAD.set(new SelfHealingElementLocator(driver, REPOSITORY, CACHE, ENGINE, CONFIG));
         log.debug("Self-healing locator initialized for thread: {}", Thread.currentThread().getName());
     }
 

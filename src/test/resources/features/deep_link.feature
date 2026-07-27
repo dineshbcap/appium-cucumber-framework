@@ -6,7 +6,7 @@ Feature: Deep Linking
 
   # ── Android Deep Links ─────────────────────────────────────────────────────────
 
-  @smoke @androidOnly @deepLink @debug1
+  @smoke @androidOnly @deepLink
   Scenario: Open Android app via URL scheme deep link
     # Simulates clicking a link in a browser or notification that opens the app
     When the user opens the Android deep link "content://media/external/images/media"
