@@ -8,7 +8,7 @@ import com.dinesh.healing.HealingCache;
 import com.dinesh.healing.HealingConfig;
 import com.dinesh.healing.HealingEngine;
 import com.dinesh.healing.HealingReporter;
-import com.dinesh.healing.LlmHealingEngine;
+import com.dinesh.healing.LlmHealingEngineFactory;
 import com.dinesh.healing.LocatorRepository;
 import com.dinesh.healing.Platform;
 import com.dinesh.healing.SelfHealingElementLocator;
@@ -46,9 +46,12 @@ import java.nio.file.Path;
  * file for the available {@code healing.*} settings (enabled, failOnHeal, cache/report
  * file locations, LLM engine options).</p>
  *
- * <p><b>Healing engine:</b> {@link #ENGINE}, built once by {@link #buildEngine()} —
- * {@link HealingEngine#NO_OP} unless {@code healing.llm.enabled=true}, in which case it's
- * a {@link LlmHealingEngine}. Only consulted as a fallback, after
+ * <p><b>Healing engine:</b> {@link #ENGINE}, built once by {@link #buildEngine()} via
+ * {@link LlmHealingEngineFactory#create(HealingConfig)} — {@link HealingEngine#NO_OP}
+ * unless {@code healing.llm.enabled=true}, in which case the factory picks the concrete
+ * engine (Anthropic / Ollama / self-hosted OpenAI-compatible) from {@code healing.llm.provider}
+ * in {@code healing-config.properties}, so switching providers is a config change, not a
+ * code change here. Only consulted as a fallback, after
  * {@link com.dinesh.healing.DeterministicHealer}'s heuristics fail.</p>
  *
  * <p><b>Cache build-id:</b> the healing cache is keyed by a build identifier — a version
@@ -160,9 +163,9 @@ public final class HealingSupport {
         if (!CONFIG.llmEnabled()) {
             return HealingEngine.NO_OP;
         }
-        log.info("LLM healing engine enabled: model={}, confidence>={}, apiKeyEnv={}",
-                CONFIG.llmModel(), CONFIG.llmConfidenceThreshold(), CONFIG.llmApiKeyEnv());
-        return new LlmHealingEngine(CONFIG);
+        log.info("LLM healing engine enabled: provider={}, confidence>={}",
+                CONFIG.llmProvider(), CONFIG.llmConfidenceThreshold());
+        return LlmHealingEngineFactory.create(CONFIG);
     }
 
     // ── Lifecycle (mirrors DriverManager) ──────────────────────────────────────
