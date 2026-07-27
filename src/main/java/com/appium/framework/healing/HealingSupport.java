@@ -13,6 +13,9 @@ import com.dinesh.healing.LocatorRepository;
 import com.dinesh.healing.Platform;
 import com.dinesh.healing.SelfHealingElementLocator;
 import io.appium.java_client.AppiumDriver;
+import io.qameta.allure.Allure;
+import io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm;
+import io.qameta.allure.model.Status;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -83,6 +86,7 @@ public final class HealingSupport {
         // registration only needs to happen once per JVM, at class-init time —
         // not per-thread like the locator itself.
         HealingReporter.addListener(HealingSupport::mirrorToExtentReport);
+        HealingReporter.addListener(HealingSupport::mirrorToAllureReport);
     }
 
     /**
@@ -106,6 +110,32 @@ public final class HealingSupport {
         test.warning("⚠ Locator healed: " + record.locatorKey() + " "
                 + record.originalLocator() + " → " + record.healedLocator()
                 + " (via " + record.healingStrategy() + ") — update locators_<platform>.properties");
+    }
+
+    /**
+     * Mirrors a heal event into the current Allure test case: a {@code tag} label
+     * (Allure's own well-known label name — {@code io.qameta.allure.util.ResultsUtils
+     * .TAG_LABEL_NAME} — the only label name the report UI actually renders as a
+     * clickable/searchable badge; an arbitrary custom label name would be stored in the
+     * result JSON but given no UI treatment) plus a nested step describing the swap.
+     * Emits two tags per heal — {@code healed} (search/filter for "any heal") and
+     * {@code healed:llm} / {@code healed:deterministic} / {@code healed:cache} (filter
+     * for one source specifically) — mirroring the {@code source} field's three values
+     * in {@code healing-report.json}. Uses {@link Status#PASSED} — a heal recovers the
+     * test, it doesn't fail it — so red/broken stays reserved for genuine step failures.
+     * The {@link AllureCucumber7Jvm} plugin already has a step/test in progress on this
+     * thread whenever a locator lookup runs, so no scenario-context lookup is needed
+     * (unlike {@link #mirrorToExtentReport}, which must go find the active Extent node).
+     *
+     * @param record the heal event reported by {@link SelfHealingElementLocator}
+     */
+    private static void mirrorToAllureReport(HealingReporter.HealingRecord record) {
+        Allure.label("tag", "healed");
+        Allure.label("tag", "healed:" + record.source());
+        Allure.step("⚠ Locator healed: " + record.locatorKey() + " "
+                + record.originalLocator() + " → " + record.healedLocator()
+                + " (via " + record.healingStrategy() + ") — update locators_<platform>.properties",
+                Status.PASSED);
     }
 
     /**
