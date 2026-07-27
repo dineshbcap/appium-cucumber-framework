@@ -28,7 +28,7 @@ Feature: Keyboard Interaction
     When the user types "Hello Appium" in the keyboard page field
     Then the text field should display "Hello Appium"
 
-  @typing @debug
+  @typing
   Scenario: Clear field using backspace key
     When the user types "ABC" in the keyboard page field
     And the user presses the Backspace key

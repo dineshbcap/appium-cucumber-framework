@@ -18,7 +18,7 @@ Feature: Text Input Controls
     And  the user clears the text field
     Then the text field should be empty
 
-  @password
+  @password @debug
   Scenario: Enter password in password field
     When the user enters password "P@ssword123"
     Then the password field should be focused
