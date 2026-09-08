@@ -7,6 +7,7 @@ import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 import com.dinesh.healing.HealingCache;
 import com.dinesh.healing.HealingConfig;
 import com.dinesh.healing.HealingEngine;
+import com.dinesh.healing.HealingReportPublisher;
 import com.dinesh.healing.HealingReporter;
 import com.dinesh.healing.LlmHealingEngineFactory;
 import com.dinesh.healing.LocatorRepository;
@@ -259,5 +260,37 @@ public final class HealingSupport {
         Path reportPath = Path.of(CONFIG.reportFile());
         HealingReporter.writeReport(reportPath);
         log.info("Self-healing report written -> {}", reportPath);
+    }
+
+    /**
+     * Phase 3: appends one CSV row (timestamp, build id, heal count) for this run to
+     * {@code healing.metrics.file} — the raw data behind a healing-rate-per-release
+     * trend line. Call alongside {@link #writeReport()} in the same {@code @AfterSuite} hook.
+     */
+    public static void appendMetric() {
+        Path metricsPath = Path.of(CONFIG.metricsFile());
+        HealingReporter.appendMetric(ConfigReader.get("app.build.id", "unknown"), metricsPath);
+        log.info("Self-healing metric appended -> {}", metricsPath);
+    }
+
+    /**
+     * Phase 5: appends one CSV row per individual heal (timestamp, build id, platform,
+     * locator key, strategy) to {@code healing.events.file} — finer-grained than
+     * {@link #appendMetric()}'s per-run total, since {@code HealingChurnAnalyzer} needs
+     * to know WHICH screen healed, not just how many times something healed this run.
+     */
+    public static void appendEvents() {
+        Path eventsPath = Path.of(CONFIG.eventsFile());
+        HealingReporter.appendEvents(ConfigReader.get("app.build.id", "unknown"), eventsPath);
+        log.info("Self-healing events appended -> {}", eventsPath);
+    }
+
+    /**
+     * Phase 3: posts a heal summary to Slack/Teams via {@link HealingReportPublisher}.
+     * Inert (no-op, never fails the build) unless {@code healing.report.webhook.enabled=true}
+     * and {@code .url} is set — see {@code healing-config.properties}.
+     */
+    public static void publishReport() {
+        HealingReportPublisher.publish(HealingReporter.records(), CONFIG);
     }
 }

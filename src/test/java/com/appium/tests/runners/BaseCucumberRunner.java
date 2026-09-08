@@ -25,5 +25,8 @@ public abstract class BaseCucumberRunner extends AbstractTestNGCucumberTests {
     @AfterSuite(alwaysRun = true)
     public void writeHealingReport() {
         HealingSupport.writeReport();
+        HealingSupport.appendMetric();
+        HealingSupport.appendEvents();
+        HealingSupport.publishReport();
     }
 }

@@ -36,9 +36,12 @@ public class TextInputControlPage extends BasePage {
 
     public void enterPassword(String password) {
         log.info("Entering password");
+        // No .clear() here: the field is already empty on a fresh screen, and
+        // clear()'s select/drag gesture on this full-width table cell can land
+        // close enough to the left edge to be read as iOS's swipe-to-go-back
+        // gesture, popping the screen mid-step.
         WebElement passwordField = element("textInput.passwordField");
         passwordField.click();
-        passwordField.clear();
         passwordField.sendKeys(password);
     }
 
